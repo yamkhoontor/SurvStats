@@ -1,6 +1,6 @@
 # SurvStats
 
-Companion apps for the book **Statistics Surveyors and Geomaticians Should Know: Plain-Language Statistics with Worked Examples and Apps** by Yam Khoon Tor.
+Companion apps for the book **Statistics Surveyors and Geomatics Professionals Should Know: Plain-Language Statistics with Worked Examples and Apps** by Yam Khoon Tor.
 
 ## Use online
 
