@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<!--
+  Copyright (c) 2026 Yam Khoon Tor. All rights reserved.
+  Companion app to "Statistics Surveyors and Geomatics Professionals Should Know". Not to be copied for others,
+  redistributed, sold or published, in original or modified form, without
+  the written permission of the author. See COPYRIGHT.txt.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Part II Solver: Statistics Surveyors and Geomatics Professionals Should Know</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F2F4EF; --sheet:#FFFFFF; --ink:#1E2B3A; --pencil:#5E6B66; --grid:#D9DFD5;
+  --staff:#B3261E; --ok:#2F6B4F; --accent-soft:#E7ECE4; --focus:#2B5C8A;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#131A1F; --sheet:#1B242B; --ink:#E6ECE8; --pencil:#9AA8A2; --grid:#2C3740;
+    --staff:#F0786A; --ok:#7CC8A0; --accent-soft:#222D35; --focus:#8EB8E0;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#131A1F; --sheet:#1B242B; --ink:#E6ECE8; --pencil:#9AA8A2; --grid:#2C3740;
+  --staff:#F0786A; --ok:#7CC8A0; --accent-soft:#222D35; --focus:#8EB8E0;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);
+  font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  font-size:16px;line-height:1.5;font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:"Source Serif 4",Georgia,"Times New Roman",serif;font-weight:650;line-height:1.2;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 20px 48px}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+header.top h1{font-size:clamp(1.5rem,3vw,2.1rem)}
+header.top p{margin:4px 0 0;color:var(--pencil);max-width:60ch}
+.theme-btn{background:none;border:1px solid var(--grid);color:var(--ink);border-radius:6px;padding:6px 10px;font:inherit;font-size:.85rem;cursor:pointer}
+.layout{display:grid;grid-template-columns:230px 1fr;gap:24px;align-items:start}
+nav.rail{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:2px}
+nav.rail button{display:grid;grid-template-columns:2.2em 1fr;align-items:baseline;text-align:left;background:none;border:0;border-left:3px solid transparent;
+  color:var(--ink);font:inherit;font-size:.95rem;padding:8px 10px;cursor:pointer;border-radius:0 6px 6px 0}
+nav.rail button .n{font-family:"Source Serif 4",Georgia,serif;color:var(--pencil);font-weight:650}
+nav.rail button[aria-selected="true"]{border-left-color:var(--staff);background:var(--accent-soft)}
+nav.rail button[aria-selected="true"] .n{color:var(--staff)}
+nav.rail button:hover{background:var(--accent-soft)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.panel{display:none}
+.panel.active{display:block}
+.panel h2{font-size:1.5rem;margin-bottom:4px}
+.panel .q{color:var(--pencil);margin:0 0 16px;max-width:70ch}
+.cols{display:grid;grid-template-columns:minmax(240px,320px) 1fr;gap:20px;align-items:start}
+.inputs{background:var(--sheet);border:1px solid var(--grid);border-radius:8px;padding:16px}
+.inputs label{display:block;font-size:.85rem;color:var(--pencil);margin:10px 0 4px}
+.inputs label:first-child{margin-top:0}
+.inputs input,.inputs select,.inputs textarea{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--grid);border-radius:6px;padding:7px 9px}
+.inputs textarea{min-height:120px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.reset{margin-top:14px;background:none;border:1px solid var(--grid);color:var(--ink);font:inherit;font-size:.85rem;padding:6px 10px;border-radius:6px;cursor:pointer;width:100%}
+/* the field-book working sheet: ruled lines and a red margin */
+.sheet{position:relative;background:var(--sheet);border:1px solid var(--grid);border-radius:8px;padding:16px 18px 18px 46px;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 27px,var(--grid) 27px,var(--grid) 28px);
+  background-position:0 10px;min-height:200px;overflow-x:auto}
+.sheet::before{content:"";position:absolute;top:0;bottom:0;left:30px;width:2px;background:var(--staff);opacity:.7}
+.sheet .step{margin:0 0 6px;line-height:28px}
+.sheet .step b{font-weight:600}
+.sheet .eq{font-family:"Source Serif 4",Georgia,serif;font-size:1.05rem}
+.sheet .verdict{display:inline-block;margin-top:6px;padding:2px 10px;border-radius:4px;font-weight:600}
+.verdict.yes{color:#fff;background:var(--staff)}
+.verdict.no{color:#fff;background:var(--ok)}
+:root[data-theme="dark"] .verdict.yes,:root[data-theme="dark"] .verdict.no{color:#131A1F}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .verdict.yes,:root:not([data-theme="light"]) .verdict.no{color:#131A1F}}
+table.t{border-collapse:collapse;margin:6px 0 10px;font-size:.95rem;background:var(--sheet)}
+table.t th,table.t td{border:1px solid var(--grid);padding:4px 10px;text-align:right}
+table.t th{font-weight:600;color:var(--pencil);text-align:center}
+table.t td:first-child,table.t th:first-child{text-align:left}
+.note{color:var(--pencil);font-size:.9rem;margin-top:8px}
+svg.plot{width:100%;max-width:420px;height:auto;display:block;margin:8px 0}
+.plot .axis{stroke:var(--pencil);stroke-width:1}
+.plot .gridl{stroke:var(--grid);stroke-width:1}
+.plot .ell1{fill:none;stroke:var(--ink);stroke-width:2}
+.plot .ell2{fill:none;stroke:var(--staff);stroke-width:2;stroke-dasharray:6 4}
+.plot .pt{fill:var(--staff)}
+.plot text{fill:var(--pencil);font-size:11px;font-family:"Public Sans",system-ui,sans-serif}
+.plot .curve{fill:none;stroke:var(--ink);stroke-width:2}
+.plot .tail{fill:var(--staff);opacity:.25}
+.plot .zline{stroke:var(--staff);stroke-width:2}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr}
+  nav.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:2;flex-direction:row;overflow-x:auto;background:var(--paper);padding:6px 0;border-bottom:1px solid var(--grid)}
+  nav.rail button{grid-template-columns:auto auto;gap:6px;white-space:nowrap;border-left:0;border-bottom:3px solid transparent;border-radius:6px 6px 0 0}
+  nav.rail button[aria-selected="true"]{border-bottom-color:var(--staff)}
+  .cols{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style>
+.inputs textarea{font-family:ui-monospace,Consolas,monospace;font-size:.9rem}
+.back{font-size:.85rem;color:var(--pencil)}
+.back a{color:var(--pencil)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div>
+    <h1>Part II Solver</h1>
+    <p>Calculators for Part II, Computation (Chapters 5 to 8). Each opens with the values of a worked example; change any number to see the working update.</p>
+    <p class="back"><a href="index.html">All apps</a></p>
+  </div>
+  <button class="theme-btn" id="themeBtn" type="button">Switch theme</button>
+</header>
+
+<div class="layout">
+<nav class="rail" role="tablist" aria-label="Calculators">
+  <button role="tab" data-p="p1" aria-selected="true"><span class="n">5</span><span>EDM specification</span></button><button role="tab" data-p="p2"><span class="n">5</span><span>Centring effect</span></button><button role="tab" data-p="p3"><span class="n">6</span><span>Levelling run</span></button><button role="tab" data-p="p4"><span class="n">6</span><span>Trig height</span></button><button role="tab" data-p="p5"><span class="n">6</span><span>Radiated point</span></button><button role="tab" data-p="p6"><span class="n">6, 15</span><span>Uncertainty budget</span></button><button role="tab" data-p="p7"><span class="n">7</span><span>Levelling loop</span></button><button role="tab" data-p="p8"><span class="n">8</span><span>Error ellipse</span></button>
+</nav>
+
+<main>
+<section class="panel active" id="p1" role="tabpanel">
+  <h2>Distance standard deviation from a specification</h2>
+  <p class="q">Table 5.1: a ±(a mm + b ppm) specification at any distance, combined two ways.</p>
+  <div class="cols">
+    <div class="inputs">
+      <div class="row2"><div><label for="b1a">Constant a (mm)</label><input id="b1a" type="number" step="0.1" value="1"></div><div><label for="b1b">Proportional b (ppm)</label><input id="b1b" type="number" step="0.1" value="1.5"></div></div><label for="b1d">Distance D (m)</label><input id="b1d" type="number" step="1" value="850">
+      <button class="reset" data-reset="p1" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p1" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p2" role="tabpanel">
+  <h2>Centring error on a direction</h2>
+  <p class="q">Worked Example 5.1: 1 mm centring at both ends of a 100 m line, with a 1″ instrument.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="b2e">Centring σ at each end (mm)</label><input id="b2e" type="number" step="0.1" value="1"><label for="b2d">Line length D (m)</label><input id="b2d" type="number" step="1" value="100"><label for="b2i">Instrument direction σ (″)</label><input id="b2i" type="number" step="0.1" value="1">
+      <button class="reset" data-reset="p2" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p2" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p3" role="tabpanel">
+  <h2>Levelling run and tolerance</h2>
+  <p class="q">Worked Example 6.1: σ grows with the square root of the length of the run.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="b3s">σ per km (mm/√km)</label><input id="b3s" type="number" step="0.1" value="1.0"><label for="b3k">Length K (km)</label><input id="b3k" type="number" step="0.1" value="2.5"><label for="b3c">Tolerance factor c in ±c√K (mm)</label><input id="b3c" type="number" step="1" value="12"><label for="b3m">Misclosure, if any (mm)</label><input id="b3m" type="number" step="0.1" value="">
+      <button class="reset" data-reset="p3" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p3" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p4" role="tabpanel">
+  <h2>Uncertainty budget for a trigonometric height</h2>
+  <p class="q">Worked Example 6.2: ΔH = S cos z + hi − ht.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="b4s">Slope distance S (m)</label><input id="b4s" type="number" step="0.001" value="345.678"><div class="row3"><div><label for="b4d">Zenith °</label><input id="b4d" type="number" step="1" value="87"></div><div><label for="b4m">′</label><input id="b4m" type="number" step="1" value="15"></div><div><label for="b4x">″</label><input id="b4x" type="number" step="1" value="20"></div></div><div class="row2"><div><label for="b4ss">σ S (mm)</label><input id="b4ss" type="number" step="0.1" value="1.5"></div><div><label for="b4sz">σ z (″)</label><input id="b4sz" type="number" step="0.1" value="2"></div></div><div class="row2"><div><label for="b4hi">σ hi (mm)</label><input id="b4hi" type="number" step="0.1" value="1"></div><div><label for="b4ht">σ ht (mm)</label><input id="b4ht" type="number" step="0.1" value="1"></div></div>
+      <button class="reset" data-reset="p4" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p4" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p5" role="tabpanel">
+  <h2>Coordinates of a radiated point</h2>
+  <p class="q">Worked Example 6.6: E = E₀ + D sin α, N = N₀ + D cos α.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="b5d">Distance D (m)</label><input id="b5d" type="number" step="0.001" value="150"><label for="b5a">Bearing α (decimal degrees)</label><input id="b5a" type="number" step="0.0001" value="30"><div class="row2"><div><label for="b5sd">σ D (mm)</label><input id="b5sd" type="number" step="0.1" value="1.5"></div><div><label for="b5sa">σ α (″)</label><input id="b5sa" type="number" step="0.1" value="3"></div></div>
+      <button class="reset" data-reset="p5" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p5" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p6" role="tabpanel">
+  <h2>Build your own uncertainty budget</h2>
+  <p class="q">One line per input: name, sensitivity, standard deviation. Contribution = sensitivity × σ. Use radians for angles (″ ÷ 206 265).</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="b6x">Name, sensitivity, σ</label><textarea id="b6x" spellcheck="false">Slope distance, 0.0479, 1.5
+Zenith angle (2″ in rad), 345.28, 0.00000970
+Instrument height, 1, 1
+Target height, 1, 1</textarea><label for="b6k">Coverage factor k</label><input id="b6k" type="number" step="0.1" value="2"><label for="b6u">Contributions in</label><select id="b6u"><option value="1000" selected>mm (σ of angles in rad, distances in m)</option><option value="1">units as entered</option></select>
+      <button class="reset" data-reset="p6" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p6" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p7" role="tabpanel">
+  <h2>Adjusting a single levelling loop</h2>
+  <p class="q">Worked Example 7.2: one line per leg: observed ΔH (m), length K (km). The misclosure is shared in proportion to K (the least squares answer for one loop).</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="b7h">Starting height (m)</label><input id="b7h" type="number" step="0.001" value="20.000"><label for="b7x">ΔH (m), K (km)</label><textarea id="b7x" spellcheck="false">1.2340, 1.2
+-0.5670, 0.8
+2.1050, 1.5
+-2.7660, 1.0</textarea><label for="b7c">Tolerance factor c in ±c√K (mm)</label><input id="b7c" type="number" step="1" value="12">
+      <button class="reset" data-reset="p7" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p7" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p8" role="tabpanel">
+  <h2>Error ellipse of a point</h2>
+  <p class="q">Worked Example 8.1: σE² = 4.00, σN² = 2.25, σEN = 1.20 mm². Bearings are clockwise from north.</p>
+  <div class="cols">
+    <div class="inputs">
+      <div class="row3"><div><label for="b8e">σE² (mm²)</label><input id="b8e" type="number" step="0.01" value="4.00"></div><div><label for="b8n">σN² (mm²)</label><input id="b8n" type="number" step="0.01" value="2.25"></div><div><label for="b8c">σEN (mm²)</label><input id="b8c" type="number" step="0.01" value="1.20"></div></div><label for="b8p">Confidence</label><select id="b8p"><option value="0.90">90%</option><option value="0.95" selected>95%</option><option value="0.99">99%</option></select>
+      <button class="reset" data-reset="p8" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p8" aria-live="polite"></div>
+  </div>
+</section>
+</main>
+</div>
+<p class="note">All computations run in your browser. Critical values are computed from the normal, t, χ² and F distributions, not looked up from tables.</p>
+<p class="note">Copyright © 2026 Yam Khoon Tor. All rights reserved. Companion to <i>Statistics Surveyors and Geomatics Professionals Should Know</i>. For the reader’s own study and professional work only; not to be copied for others, redistributed, sold or published, in original or modified form, without the author’s written permission. Results are for education and guidance and should be checked independently; the author accepts no liability for their use.</p>
+</div>
+<script>
+// ---------- statistics ----------
+const S={
+ lgamma(x){const c=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
+  if(x<0.5)return Math.log(Math.PI/Math.sin(Math.PI*x))-S.lgamma(1-x);x-=1;let a=c[0];const t=x+7.5;for(let i=1;i<9;i++)a+=c[i]/(x+i);return 0.5*Math.log(2*Math.PI)+(x+0.5)*Math.log(t)-t+Math.log(a);},
+ betacf(a,b,x){let qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;if(Math.abs(d)<1e-300)d=1e-300;d=1/d;let h=d;
+  for(let m=1;m<=300;m++){let m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));d=1+aa*d;if(Math.abs(d)<1e-300)d=1e-300;c=1+aa/c;if(Math.abs(c)<1e-300)c=1e-300;d=1/d;h*=d*c;
+   aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<1e-300)d=1e-300;c=1+aa/c;if(Math.abs(c)<1e-300)c=1e-300;d=1/d;const del=d*c;h*=del;if(Math.abs(del-1)<1e-12)break;}return h;},
+ ibeta(x,a,b){if(x<=0)return 0;if(x>=1)return 1;const bt=Math.exp(S.lgamma(a+b)-S.lgamma(a)-S.lgamma(b)+a*Math.log(x)+b*Math.log(1-x));
+  return x<(a+1)/(a+b+2)?bt*S.betacf(a,b,x)/a:1-bt*S.betacf(b,a,1-x)/b;},
+ gammp(a,x){if(x<=0)return 0;if(x<a+1){let ap=a,sum=1/a,del=sum;for(let n=0;n<500;n++){ap++;del*=x/ap;sum+=del;if(Math.abs(del)<Math.abs(sum)*1e-14)break;}return sum*Math.exp(-x+a*Math.log(x)-S.lgamma(a));}
+  let b=x+1-a,c=1e300,d=1/b,h=d;for(let i=1;i<500;i++){const an=-i*(i-a);b+=2;d=an*d+b;if(Math.abs(d)<1e-300)d=1e-300;c=b+an/c;if(Math.abs(c)<1e-300)c=1e-300;d=1/d;const del=d*c;h*=del;if(Math.abs(del-1)<1e-14)break;}
+  return 1-Math.exp(-x+a*Math.log(x)-S.lgamma(a))*h;},
+ ncdf(z){const e=Math.sign(z)*S.gammp(0.5,z*z/2);return 0.5*(1+e);},
+ ninv(p){let lo=-12,hi=12;for(let i=0;i<120;i++){const m=(lo+hi)/2;if(S.ncdf(m)<p)lo=m;else hi=m;}return (lo+hi)/2;},
+ npdf(x){return Math.exp(-x*x/2)/Math.sqrt(2*Math.PI);},
+ tcdf(t,df){const x=df/(df+t*t);const p=0.5*S.ibeta(x,df/2,0.5);return t>0?1-p:p;},
+ tinv(p,df){let lo=-1e5,hi=1e5;for(let i=0;i<220;i++){const m=(lo+hi)/2;if(S.tcdf(m,df)<p)lo=m;else hi=m;}return (lo+hi)/2;},
+ tpdf(t,df){return Math.exp(S.lgamma((df+1)/2)-S.lgamma(df/2))/Math.sqrt(df*Math.PI)*Math.pow(1+t*t/df,-(df+1)/2);},
+ chicdf(x,k){return S.gammp(k/2,x/2);},
+ chiinv(p,k){let lo=0,hi=k+80*Math.sqrt(2*k)+80;for(let i=0;i<200;i++){const m=(lo+hi)/2;if(S.chicdf(m,k)<p)lo=m;else hi=m;}return (lo+hi)/2;},
+ fcdf(f,d1,d2){if(f<=0)return 0;return S.ibeta(d1*f/(d1*f+d2),d1/2,d2/2);},
+ finv(p,d1,d2){let lo=0,hi=1e5;for(let i=0;i<220;i++){const m=(lo+hi)/2;if(S.fcdf(m,d1,d2)<p)lo=m;else hi=m;}return (lo+hi)/2;},
+ tauc(n,r,al){if(r<2)return NaN;const t=S.tinv(1-al/n/2,r-1);return t*Math.sqrt(r)/Math.sqrt(r-1+t*t);},
+ mean(a){return a.reduce((s,x)=>s+x,0)/a.length;},
+ sd(a){const m=S.mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/(a.length-1));},
+ median(a){const b=[...a].sort((x,y)=>x-y),n=b.length;return n%2?b[(n-1)/2]:(b[n/2-1]+b[n/2])/2;},
+ pctl(a,p){const b=[...a].sort((x,y)=>x-y);const h=(b.length-1)*p,l=Math.floor(h);return b[l]+(h-l)*((b[l+1]??b[l])-b[l]);}
+};
+
+// ---------- helpers ----------
+const $=id=>document.getElementById(id);
+const num=id=>parseFloat($(id).value);
+function f(x,d=2){ if(!isFinite(x))return "–"; const s=(Math.abs(x)<0.5*Math.pow(10,-d)?0:x).toFixed(d); return s.replace("-","−");}
+function sg(x,d=2){const t=f(x,d);return (x>0&&parseFloat(t)!==0?"+":"")+t;}
+function pct(a){return (+(a*100).toFixed(3)).toString()+"%";}
+const step=(html)=>`<p class="step">${html}</p>`;
+const verdict=(flag,yesText,noText)=>`<span class="verdict ${flag?'yes':'no'}">${flag?yesText:noText}</span>`;
+function bad(msg){return step(`<b>Check the inputs:</b> ${msg}`);}
+const nums=t=>t.split(/[\s,;]+/).filter(x=>x!=="").map(Number).filter(x=>isFinite(x));
+const lines=(id)=>$(id).value.split("\n").map(l=>l.trim()).filter(l=>l!=="");
+function decs(arr){let m=0;arr.forEach(x=>{const s=String(x);const i=s.indexOf(".");if(i>=0)m=Math.max(m,s.length-i-1);});return m;}
+function tbl(head,rows){return `<table class="t"><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr>${rows.map(r=>`<tr${r.bold?' style="font-weight:600"':''}>${(r.cells||r).map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</table>`;}
+const DEG=Math.PI/180, RHO=206264.806;
+
+// ---------- plots ----------
+function curvePlot(pdf,lo,hi,crit,stat,label,twoSided=true){
+  const W=420,H=150;let ymax=0;for(let v=lo;v<=hi;v+=(hi-lo)/200)ymax=Math.max(ymax,pdf(v));
+  const xs=v=>10+(v-lo)/(hi-lo)*(W-20),ys=v=>H-24-v*(H-40)/ymax;
+  let path="";for(let v=lo;v<=hi+1e-9;v+=(hi-lo)/200)path+=(path?"L":"M")+xs(v).toFixed(1)+","+ys(pdf(v)).toFixed(1);
+  const tail=(a,b)=>{let p=`M${xs(a).toFixed(1)},${ys(0).toFixed(1)}`;for(let v=a;v<=b+1e-9;v+=(hi-lo)/200)p+=`L${xs(v).toFixed(1)},${ys(pdf(v)).toFixed(1)}`;return p+`L${xs(b).toFixed(1)},${ys(0).toFixed(1)}Z`;};
+  let tails="";const cs=Array.isArray(crit)?crit:[crit];
+  if(Array.isArray(crit)){tails=`<path class="tail" d="${tail(lo,Math.max(lo,crit[0]))}"/><path class="tail" d="${tail(Math.min(hi,crit[1]),hi)}"/>`;}
+  else if(twoSided){tails=`<path class="tail" d="${tail(lo,-crit)}"/><path class="tail" d="${tail(crit,hi)}"/>`;cs.unshift(-crit);}
+  else tails=`<path class="tail" d="${tail(Math.min(crit,hi),hi)}"/>`;
+  const sc=Math.max(lo,Math.min(stat,hi));
+  return `<svg class="plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="Distribution with rejection region and test statistic">${tails}
+   <line class="axis" x1="0" y1="${ys(0)}" x2="${W}" y2="${ys(0)}"/><path class="curve" d="${path}"/>
+   <line class="zline" x1="${xs(sc)}" y1="${ys(0)}" x2="${xs(sc)}" y2="16"/><text x="${Math.min(xs(sc)+4,W-90)}" y="14">${label} = ${f(stat,2)}${stat>hi||stat<lo?' (off scale)':''}</text>
+   ${cs.map(c=>`<text x="${xs(c)-12}" y="${H-6}">${f(c,2)}</text>`).join("")}</svg>`;}
+function xyPlot(opt){ // opt: {pts:[[x,y]], lines:[{pts,cls}], bands:[{up,dn}], hlines:[{y,label}], xl, yl, W,H}
+  const W=opt.W||460,H=opt.H||240,m={l:46,r:12,t:12,b:34};
+  let xsA=[],ysA=[];(opt.pts||[]).forEach(p=>{xsA.push(p[0]);ysA.push(p[1]);});(opt.lines||[]).forEach(L=>L.pts.forEach(p=>{xsA.push(p[0]);ysA.push(p[1]);}));
+  (opt.bands||[]).forEach(B=>B.up.concat(B.dn).forEach(p=>{xsA.push(p[0]);ysA.push(p[1]);}));(opt.hlines||[]).forEach(h=>ysA.push(h.y));
+  let x0=Math.min(...xsA),x1=Math.max(...xsA),y0=Math.min(...ysA),y1=Math.max(...ysA);if(opt.yzero){y0=Math.min(0,y0);y1=Math.max(0,y1);}
+  const py=(y1-y0)*0.08||1,px=(x1-x0)*0.03||1;y0-=py;y1+=py;x0-=px;x1+=px;
+  const X=v=>m.l+(v-x0)/(x1-x0)*(W-m.l-m.r),Y=v=>H-m.b-(v-y0)/(y1-y0)*(H-m.t-m.b);
+  const ticks=(a,b,n)=>{const st0=(b-a)/n,mag=10**Math.floor(Math.log10(st0)),st=[1,2,2.5,5,10].map(k=>k*mag).find(s=>s>=st0);const o=[];for(let v=Math.ceil(a/st)*st;v<=b+1e-9;v+=st)o.push(+v.toFixed(10));return o;};
+  let s=`<svg class="plot" viewBox="0 0 ${W} ${H}" style="max-width:${W}px" role="img" aria-label="${opt.yl||'plot'}">`;
+  ticks(y0,y1,5).forEach(v=>s+=`<line class="gridl" x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l-5}" y="${Y(v)+4}" text-anchor="end">${+v.toFixed(4)}</text>`);
+  ticks(x0,x1,6).forEach(v=>s+=`<text x="${X(v)}" y="${H-m.b+14}" text-anchor="middle">${+v.toFixed(4)}</text>`);
+  s+=`<line class="axis" x1="${m.l}" x2="${W-m.r}" y1="${H-m.b}" y2="${H-m.b}"/><line class="axis" x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H-m.b}"/>`;
+  (opt.bands||[]).forEach(B=>{s+=`<polygon points="${B.up.map(p=>X(p[0])+","+Y(p[1])).join(" ")} ${[...B.dn].reverse().map(p=>X(p[0])+","+Y(p[1])).join(" ")}" style="fill:var(--accent-soft);stroke:none"/>`;});
+  (opt.hlines||[]).forEach(h=>s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(h.y)}" y2="${Y(h.y)}" style="stroke:var(--staff);stroke-dasharray:6 4"/><text x="${m.l+4}" y="${Y(h.y)-4}">${h.label||""}</text>`);
+  if(opt.zero)s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(0)}" y2="${Y(0)}" style="stroke:var(--pencil)"/>`;
+  (opt.lines||[]).forEach(L=>s+=`<polyline class="curve" points="${L.pts.map(p=>X(p[0])+","+Y(p[1])).join(" ")}" style="${L.style||''}"/>`);
+  (opt.stems||[]).forEach(p=>s+=`<line x1="${X(p[0])}" x2="${X(p[0])}" y1="${Y(0)}" y2="${Y(p[1])}" style="stroke:var(--ink);stroke-width:2"/>`);
+  (opt.pts||[]).forEach((p,i)=>s+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="${(opt.big&&opt.big.includes(i))?6:4}" class="pt" style="${(opt.big&&opt.big.includes(i))?'fill:none;stroke:var(--staff);stroke-width:2.5':''}"/>`);
+  if(opt.xl)s+=`<text x="${(m.l+W-m.r)/2}" y="${H-4}" text-anchor="middle">${opt.xl}</text>`;
+  if(opt.yl)s+=`<text transform="translate(11,${(m.t+H-m.b)/2}) rotate(-90)" text-anchor="middle">${opt.yl}</text>`;
+  return s+"</svg>";}
+function barPlot(items,xl){ // items [{label,value,hi}]
+  const W=460,rowH=26,H=items.length*rowH+30,L=170,mx=Math.max(...items.map(i=>Math.abs(i.value)),1e-12);
+  let s=`<svg class="plot" viewBox="0 0 ${W} ${H}" style="max-width:${W}px" role="img" aria-label="bar chart">`;
+  items.forEach((it,i)=>{const y=8+i*rowH,w=Math.abs(it.value)/mx*(W-L-60);s+=`<text x="${L-6}" y="${y+14}" text-anchor="end">${it.label}</text><rect x="${L}" y="${y}" width="${w}" height="18" style="fill:${it.hi?'var(--staff)':'var(--ink)'};opacity:${it.hi?0.85:0.55}"/><text x="${L+w+5}" y="${y+14}">${f(Math.abs(it.value),2)}</text>`;});
+  if(xl)s+=`<text x="${(L+W)/2}" y="${H-4}" text-anchor="middle">${xl}</text>`;return s+"</svg>";}
+
+
+function r_p1(){const a=num("b1a"),b=num("b1b"),D=num("b1d");if(!(a>=0&&b>=0&&D>=0)){$("o_p1").innerHTML=bad("values must not be negative.");return;}
+ const bp=b*D/1000,lin=a+bp,rss=Math.hypot(a,bp);
+ $("o_p1").innerHTML=step(`<b>Step 1.</b> Proportional part: <span class="eq">b × D = ${f(b,2)} ppm × ${f(D/1000,3)} km = ${f(bp,2)} mm</span>`)+
+  step(`<b>Step 2a.</b> Linear sum (cautious): <span class="eq">σ = ${f(a,2)} + ${f(bp,2)} = ${f(lin,2)} mm</span>`)+
+  step(`<b>Step 2b.</b> Root sum of squares: <span class="eq">σ = √(${f(a,2)}² + ${f(bp,2)}²) = ${f(rss,2)} mm</span>`)+
+  step(`<b>95% (× 1.96).</b> ${f(1.96*lin,2)} mm (linear) or ${f(1.96*rss,2)} mm (root sum of squares).`)+
+  `<p class="note">The book uses the linear sum unless stated otherwise (Section 5.2).</p>`;}
+
+function r_p2(){const e=num("b2e"),D=num("b2d"),si=num("b2i");if(!(D>0&&e>=0&&si>=0)){$("o_p2").innerHTML=bad("D must be positive.");return;}
+ const sc=Math.SQRT2*e/1000/D*RHO,tot=Math.hypot(si,sc);
+ $("o_p2").innerHTML=step(`<b>Step 1.</b> Centring at both ends: <span class="eq">√2 × ${f(e,2)} mm / ${f(D,1)} m × 206 265 = ${f(sc,2)}″</span>`)+
+  step(`<b>Step 2.</b> Combined with the instrument: <span class="eq">√(${f(si,2)}² + ${f(sc,2)}²) = ${f(tot,2)}″</span>`)+
+  step(`<b>Share.</b> Centring contributes ${f(100*sc*sc/(tot*tot),0)}% of the variance.`)+verdict(sc>si,"Centring dominates","Instrument dominates")+
+  `<p class="note">An angle is the difference of two directions, so its σ is √2 times larger.</p>`;}
+
+function r_p3(){const s=num("b3s"),K=num("b3k"),c=num("b3c"),mc=num("b3m");if(!(s>0&&K>0)){$("o_p3").innerHTML=bad("σ and K must be positive.");return;}
+ const sh=s*Math.sqrt(K),tol=c*Math.sqrt(K);let out=step(`<b>Step 1.</b> <span class="eq">σ<sub>ΔH</sub> = ${f(s,2)} × √${f(K,2)} = ${f(sh,2)} mm</span>; 95%: ${f(1.96*sh,2)} mm.`)+
+  step(`<b>Step 2.</b> Tolerance <span class="eq">±${f(c,1)}√K = ±${f(tol,1)} mm</span>, which is ${f(tol/sh,1)} times σ<sub>ΔH</sub>.`);
+ if(isFinite(mc))out+=step(`<b>Check.</b> Misclosure ${f(mc,1)} mm ${Math.abs(mc)<=tol?"is within":"exceeds"} the tolerance.`)+verdict(Math.abs(mc)>tol,"Fails tolerance","Within tolerance");
+ $("o_p3").innerHTML=out;}
+
+function r_p4(){const S_=num("b4s"),z=(num("b4d")+num("b4m")/60+num("b4x")/3600)*DEG,ss=num("b4ss"),sz=num("b4sz"),hi=num("b4hi"),ht=num("b4ht");
+ if(!(S_>0)){$("o_p4").innerHTML=bad("S must be positive.");return;}
+ const c1=Math.abs(Math.cos(z))*ss,c2=Math.abs(S_*Math.sin(z))*sz/RHO*1000,tot=Math.sqrt(c1*c1+c2*c2+hi*hi+ht*ht);
+ const rows=[["Slope distance",`cos z = ${f(Math.cos(z),4)}`,`${f(ss,2)} mm`,f(c1,2)],["Zenith angle",`S sin z = ${f(S_*Math.sin(z),2)} m`,`${f(sz,2)}″ = ${(sz/RHO).toExponential(2)} rad`,f(c2,2)],["Instrument height","1",`${f(hi,2)} mm`,f(hi,2)],["Target height","1",`${f(ht,2)} mm`,f(ht,2)]];
+ $("o_p4").innerHTML=step(`<b>Step 1.</b> <span class="eq">S cos z = ${f(S_*Math.cos(z),4)} m</span>`)+step(`<b>Step 2.</b> Contribution of each input = sensitivity × σ:`)+tbl(["Input","Sensitivity","σ","Contribution (mm)"],rows)+
+  step(`<b>Step 3.</b> <span class="eq">σ<sub>ΔH</sub> = √(Σ contributions²) = ${f(tot,2)} mm</span>; 95%: ${f(1.96*tot,1)} mm.`)+
+  barPlot([{label:"Slope distance",value:c1},{label:"Zenith angle",value:c2,hi:c2>=Math.max(c1,hi,ht)},{label:"Instrument height",value:hi},{label:"Target height",value:ht}],"Contribution (mm)");}
+
+function r_p5(){const D=num("b5d"),a=num("b5a")*DEG,sd=num("b5sd"),sa=num("b5sa")/RHO;if(!(D>0)){$("o_p5").innerHTML=bad("D must be positive.");return;}
+ const e1=Math.sin(a)*sd,e2=D*Math.cos(a)*sa*1000,n1=Math.cos(a)*sd,n2=D*Math.sin(a)*sa*1000,sE=Math.hypot(e1,e2),sN=Math.hypot(n1,n2);
+ $("o_p5").innerHTML=step(`<b>Lateral shift from the bearing:</b> <span class="eq">D × σ<sub>α</sub> = ${f(D*sa*1000,2)} mm</span>`)+
+  tbl(["Input","Contribution to E (mm)","Contribution to N (mm)"],[["Distance",f(Math.abs(e1),2),f(Math.abs(n1),2)],["Bearing",f(Math.abs(e2),2),f(Math.abs(n2),2)],{cells:["Total σ",f(sE,2),f(sN,2)],bold:true}])+
+  `<p class="note">For the full picture, the covariance between E and N gives an error ellipse (Part II, Chapter 8 calculator).</p>`;}
+
+function r_p6(){const u=+$("b6u").value,L=lines("b6x").map(l=>{const p=l.split(",");return {n:p[0],c:+p[1],s:+p[2]};}).filter(o=>isFinite(o.c)&&isFinite(o.s));
+ if(!L.length){$("o_p6").innerHTML=bad("enter lines of name, sensitivity, σ.");return;}
+ L.forEach(o=>o.v=Math.abs(o.c*o.s)*(o.n.toLowerCase().includes("rad")?u:1));const uc=Math.sqrt(L.reduce((a,o)=>a+o.v*o.v,0)),k=num("b6k"),mx=Math.max(...L.map(o=>o.v));
+ $("o_p6").innerHTML=tbl(["Input","Sensitivity","σ","Contribution","Share"],L.map(o=>[o.n,o.c,o.s,f(o.v,3),f(100*o.v*o.v/(uc*uc),0)+"%"]))+
+  step(`<b>Combined:</b> <span class="eq">√(Σ contributions²) = ${f(uc,3)}</span>; expanded (k = ${f(k,1)}): <b>${f(k*uc,2)}</b>`)+barPlot(L.map(o=>({label:o.n.slice(0,24),value:o.v,hi:o.v===mx})),"Contribution")+
+  `<p class="note">The largest bar shows where improvement pays. A line whose name contains "rad" is multiplied by the factor chosen above.</p>`;}
+
+function r_p7(){const H0=num("b7h"),L=lines("b7x").map(l=>l.split(/[\s,;]+/).map(Number)).filter(p=>p.length>=2&&isFinite(p[0])&&p[1]>0),c=num("b7c");
+ if(L.length<2){$("o_p7").innerHTML=bad("enter at least two legs.");return;}
+ const mis=L.reduce((a,p)=>a+p[0],0)*1000,SK=L.reduce((a,p)=>a+p[1],0),tol=c*Math.sqrt(SK);let H=H0;
+ const rows=L.map((p,i)=>{const cor=-mis*p[1]/SK,adj=p[0]+cor/1000;H+=adj;return [i+1,f(p[0],4),f(p[1],2),sg(cor,2),f(adj,4),f(H,4),f(p[1]/SK,2)];});
+ $("o_p7").innerHTML=step(`<b>Step 1.</b> Misclosure <span class="eq">ΣΔH = ${sg(mis,1)} mm</span> over ΣK = ${f(SK,2)} km. Tolerance ±${f(tol,1)} mm.`)+verdict(Math.abs(mis)>tol,"Exceeds tolerance: re-level","Within tolerance")+
+  step(`<b>Step 2.</b> Correction to each leg = −misclosure × K / ΣK:`)+tbl(["Leg","Observed (m)","K (km)","Correction (mm)","Adjusted (m)","Height at end (m)","Redundancy r = K/ΣK"],rows)+
+  `<p class="note">The last height returns to the starting value. The redundancy numbers add up to 1: a single loop has only one check, and the most precise (shortest) leg is the least checked (Section 10.5).</p>`;}
+
+function r_p8(){const ee=num("b8e"),nn=num("b8n"),en=num("b8c"),cl=+$("b8p").value,m=(ee+nn)/2,r=Math.sqrt(((ee-nn)/2)**2+en*en);
+ if(!(ee>0&&nn>0)||m-r<0){$("o_p8").innerHTML=bad("variances must be positive and σEN² must not exceed σE²·σN².");return;}
+ const a=Math.sqrt(m+r),b=Math.sqrt(m-r),k=Math.sqrt(S.chiinv(cl,2));let th=Math.atan2(2*en,nn-ee)/DEG/2;th=((th%180)+180)%180;
+ const W=300,cx=150,cy=150,sc=125/Math.max(a*k,1e-9),rot=-(90-th);let grid="";for(let i=-5;i<=5;i++){const p=cx+i*25;grid+=`<line class="gridl" x1="${p}" y1="10" x2="${p}" y2="290"/><line class="gridl" x1="10" y1="${p}" x2="290" y2="${p}"/>`;}
+ const svg=`<svg class="plot" viewBox="0 0 300 300" style="max-width:300px" role="img" aria-label="error ellipse">${grid}<line class="axis" x1="150" y1="10" x2="150" y2="290"/><line class="axis" x1="10" y1="150" x2="290" y2="150"/><text x="155" y="22">N</text><text x="278" y="145">E</text>
+  <ellipse class="ell2" cx="${cx}" cy="${cy}" rx="${a*k*sc}" ry="${b*k*sc}" transform="rotate(${rot} ${cx} ${cy})"/><ellipse class="ell1" cx="${cx}" cy="${cy}" rx="${a*sc}" ry="${b*sc}" transform="rotate(${rot} ${cx} ${cy})"/><text x="12" y="294">grid: ${f(25/sc,2)} mm</text></svg>`;
+ $("o_p8").innerHTML=step(`<b>Step 1.</b> <span class="eq">(σE² + σN²)/2 = ${f(m,3)}</span>; <span class="eq">√[((σE² − σN²)/2)² + σEN²] = ${f(r,3)}</span>`)+
+  step(`<b>Step 2.</b> <span class="eq">a = √(${f(m,3)} + ${f(r,3)}) = ${f(a,2)} mm</span>, <span class="eq">b = √(${f(m,3)} − ${f(r,3)}) = ${f(b,2)} mm</span>`)+
+  step(`<b>Step 3.</b> <span class="eq">tan 2θ = 2σEN / (σN² − σE²) = ${f(2*en,2)} / ${f(nn-ee,2)}</span> → bearing of major axis θ = ${f(th,1)}°`)+
+  step(`<b>Step 4.</b> ${pct(cl)} ellipse: multiply by ${f(k,3)} → a = ${f(a*k,2)} mm, b = ${f(b*k,2)} mm.`)+svg+
+  tbl(["Single numbers","Value (mm)"],[["DRMS",f(Math.sqrt(ee+nn),2)],["2DRMS",f(2*Math.sqrt(ee+nn),2)],["CEP ≈ 0.5887(σE + σN)",f(0.5887*(Math.sqrt(ee)+Math.sqrt(nn)),2)]])+
+  `<p class="note">Solid: standard ellipse (39.3%). Dashed: ${pct(cl)} ellipse. For 95% the multiplier is 2.448, not 1.96.</p>`;}
+
+
+// ---------- wiring ----------
+const renderers={p1:r_p1,p2:r_p2,p3:r_p3,p4:r_p4,p5:r_p5,p6:r_p6,p7:r_p7,p8:r_p8};
+const defaults={};
+document.querySelectorAll(".panel").forEach(p=>{defaults[p.id]={};p.querySelectorAll("input,select,textarea").forEach(el=>defaults[p.id][el.id]=el.value);
+  p.addEventListener("input",()=>renderers[p.id]());p.addEventListener("change",()=>renderers[p.id]());});
+document.querySelectorAll(".reset").forEach(b=>b.addEventListener("click",()=>{const id=b.dataset.reset;Object.entries(defaults[id]).forEach(([k,v])=>$(k).value=v);renderers[id]();}));
+const tabs=[...document.querySelectorAll('nav.rail button')];
+function show(id){tabs.forEach(t=>t.setAttribute("aria-selected",t.dataset.p===id?"true":"false"));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id===id));renderers[id]();
+  try{localStorage.setItem("p2stat-tab",id)}catch(e){}}
+tabs.forEach(t=>t.addEventListener("click",()=>show(t.dataset.p)));
+document.querySelector("nav.rail").addEventListener("keydown",e=>{const i=tabs.findIndex(t=>t.getAttribute("aria-selected")==="true");
+  if(e.key==="ArrowDown"||e.key==="ArrowRight"){e.preventDefault();const n=tabs[(i+1)%tabs.length];show(n.dataset.p);n.focus();}
+  if(e.key==="ArrowUp"||e.key==="ArrowLeft"){e.preventDefault();const n=tabs[(i-1+tabs.length)%tabs.length];show(n.dataset.p);n.focus();}});
+const root=document.documentElement;
+try{const th=localStorage.getItem("p2stat-theme");if(th)root.setAttribute("data-theme",th);}catch(e){}
+$("themeBtn").addEventListener("click",()=>{const dark=root.getAttribute("data-theme")?root.getAttribute("data-theme")==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
+  const next=dark?"light":"dark";root.setAttribute("data-theme",next);try{localStorage.setItem("p2stat-theme",next)}catch(e){}});
+Object.entries(renderers).forEach(([k,fn])=>{try{fn();}catch(err){$("o_"+k).innerHTML=bad("calculation error: "+err.message);}});
+let start="p1";
+const h0=location.hash.slice(1);if(h0&&renderers[h0])start=h0;else{try{const s=localStorage.getItem("p2stat-tab");if(s&&renderers[s])start=s;}catch(e){}}
+show(start);
+
+</script>
+</body>
+</html>

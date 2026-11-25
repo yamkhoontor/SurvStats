@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<!--
+  Copyright (c) 2026 Yam Khoon Tor. All rights reserved.
+  Companion app to "Statistics Surveyors and Geomatics Professionals Should Know". Not to be copied for others,
+  redistributed, sold or published, in original or modified form, without
+  the written permission of the author. See COPYRIGHT.txt.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Part I Solver: Statistics Surveyors and Geomatics Professionals Should Know</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F2F4EF; --sheet:#FFFFFF; --ink:#1E2B3A; --pencil:#5E6B66; --grid:#D9DFD5;
+  --staff:#B3261E; --ok:#2F6B4F; --accent-soft:#E7ECE4; --focus:#2B5C8A;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#131A1F; --sheet:#1B242B; --ink:#E6ECE8; --pencil:#9AA8A2; --grid:#2C3740;
+    --staff:#F0786A; --ok:#7CC8A0; --accent-soft:#222D35; --focus:#8EB8E0;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#131A1F; --sheet:#1B242B; --ink:#E6ECE8; --pencil:#9AA8A2; --grid:#2C3740;
+  --staff:#F0786A; --ok:#7CC8A0; --accent-soft:#222D35; --focus:#8EB8E0;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);
+  font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  font-size:16px;line-height:1.5;font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:"Source Serif 4",Georgia,"Times New Roman",serif;font-weight:650;line-height:1.2;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 20px 48px}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+header.top h1{font-size:clamp(1.5rem,3vw,2.1rem)}
+header.top p{margin:4px 0 0;color:var(--pencil);max-width:60ch}
+.theme-btn{background:none;border:1px solid var(--grid);color:var(--ink);border-radius:6px;padding:6px 10px;font:inherit;font-size:.85rem;cursor:pointer}
+.layout{display:grid;grid-template-columns:230px 1fr;gap:24px;align-items:start}
+nav.rail{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:2px}
+nav.rail button{display:grid;grid-template-columns:2.2em 1fr;align-items:baseline;text-align:left;background:none;border:0;border-left:3px solid transparent;
+  color:var(--ink);font:inherit;font-size:.95rem;padding:8px 10px;cursor:pointer;border-radius:0 6px 6px 0}
+nav.rail button .n{font-family:"Source Serif 4",Georgia,serif;color:var(--pencil);font-weight:650}
+nav.rail button[aria-selected="true"]{border-left-color:var(--staff);background:var(--accent-soft)}
+nav.rail button[aria-selected="true"] .n{color:var(--staff)}
+nav.rail button:hover{background:var(--accent-soft)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.panel{display:none}
+.panel.active{display:block}
+.panel h2{font-size:1.5rem;margin-bottom:4px}
+.panel .q{color:var(--pencil);margin:0 0 16px;max-width:70ch}
+.cols{display:grid;grid-template-columns:minmax(240px,320px) 1fr;gap:20px;align-items:start}
+.inputs{background:var(--sheet);border:1px solid var(--grid);border-radius:8px;padding:16px}
+.inputs label{display:block;font-size:.85rem;color:var(--pencil);margin:10px 0 4px}
+.inputs label:first-child{margin-top:0}
+.inputs input,.inputs select,.inputs textarea{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--grid);border-radius:6px;padding:7px 9px}
+.inputs textarea{min-height:120px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.reset{margin-top:14px;background:none;border:1px solid var(--grid);color:var(--ink);font:inherit;font-size:.85rem;padding:6px 10px;border-radius:6px;cursor:pointer;width:100%}
+/* the field-book working sheet: ruled lines and a red margin */
+.sheet{position:relative;background:var(--sheet);border:1px solid var(--grid);border-radius:8px;padding:16px 18px 18px 46px;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 27px,var(--grid) 27px,var(--grid) 28px);
+  background-position:0 10px;min-height:200px;overflow-x:auto}
+.sheet::before{content:"";position:absolute;top:0;bottom:0;left:30px;width:2px;background:var(--staff);opacity:.7}
+.sheet .step{margin:0 0 6px;line-height:28px}
+.sheet .step b{font-weight:600}
+.sheet .eq{font-family:"Source Serif 4",Georgia,serif;font-size:1.05rem}
+.sheet .verdict{display:inline-block;margin-top:6px;padding:2px 10px;border-radius:4px;font-weight:600}
+.verdict.yes{color:#fff;background:var(--staff)}
+.verdict.no{color:#fff;background:var(--ok)}
+:root[data-theme="dark"] .verdict.yes,:root[data-theme="dark"] .verdict.no{color:#131A1F}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .verdict.yes,:root:not([data-theme="light"]) .verdict.no{color:#131A1F}}
+table.t{border-collapse:collapse;margin:6px 0 10px;font-size:.95rem;background:var(--sheet)}
+table.t th,table.t td{border:1px solid var(--grid);padding:4px 10px;text-align:right}
+table.t th{font-weight:600;color:var(--pencil);text-align:center}
+table.t td:first-child,table.t th:first-child{text-align:left}
+.note{color:var(--pencil);font-size:.9rem;margin-top:8px}
+svg.plot{width:100%;max-width:420px;height:auto;display:block;margin:8px 0}
+.plot .axis{stroke:var(--pencil);stroke-width:1}
+.plot .gridl{stroke:var(--grid);stroke-width:1}
+.plot .ell1{fill:none;stroke:var(--ink);stroke-width:2}
+.plot .ell2{fill:none;stroke:var(--staff);stroke-width:2;stroke-dasharray:6 4}
+.plot .pt{fill:var(--staff)}
+.plot text{fill:var(--pencil);font-size:11px;font-family:"Public Sans",system-ui,sans-serif}
+.plot .curve{fill:none;stroke:var(--ink);stroke-width:2}
+.plot .tail{fill:var(--staff);opacity:.25}
+.plot .zline{stroke:var(--staff);stroke-width:2}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr}
+  nav.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:2;flex-direction:row;overflow-x:auto;background:var(--paper);padding:6px 0;border-bottom:1px solid var(--grid)}
+  nav.rail button{grid-template-columns:auto auto;gap:6px;white-space:nowrap;border-left:0;border-bottom:3px solid transparent;border-radius:6px 6px 0 0}
+  nav.rail button[aria-selected="true"]{border-bottom-color:var(--staff)}
+  .cols{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style>
+.inputs textarea{font-family:ui-monospace,Consolas,monospace;font-size:.9rem}
+.back{font-size:.85rem;color:var(--pencil)}
+.back a{color:var(--pencil)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div>
+    <h1>Part I Solver</h1>
+    <p>Calculators for Part I, Measurements (Chapters 1 to 4). Each opens with the values of a worked example; change any number to see the working update.</p>
+    <p class="back"><a href="index.html">All apps</a></p>
+  </div>
+  <button class="theme-btn" id="themeBtn" type="button">Switch theme</button>
+</header>
+
+<div class="layout">
+<nav class="rail" role="tablist" aria-label="Calculators">
+  <button role="tab" data-p="p1" aria-selected="true"><span class="n">3</span><span>Mean and std. dev.</span></button><button role="tab" data-p="p2"><span class="n">3</span><span>Weighted mean</span></button><button role="tab" data-p="p3"><span class="n">4</span><span>Confidence interval</span></button><button role="tab" data-p="p4"><span class="n">4</span><span>Tau test (outliers)</span></button><button role="tab" data-p="p5"><span class="n">4</span><span>Normal probabilities</span></button>
+</nav>
+
+<main>
+<section class="panel active" id="p1" role="tabpanel">
+  <h2>Mean, standard deviation and standard error</h2>
+  <p class="q">Worked Example 3.1: ten readings of a baseline. Paste your own readings, one per line or separated by spaces or commas.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="a1x">Readings</label><textarea id="a1x" spellcheck="false">125.432
+125.436
+125.429
+125.434
+125.431
+125.438
+125.433
+125.430
+125.435
+125.432</textarea><label for="a1u">Show spread in</label><select id="a1u"><option value="1000" selected>mm (readings in m)</option><option value="1">same units as readings</option></select>
+      <button class="reset" data-reset="p1" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p1" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p2" role="tabpanel">
+  <h2>Weighted mean</h2>
+  <p class="q">Worked Example 3.2: a benchmark levelled by three routes. One line per result: value, standard deviation (mm).</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="a2x">Value (m), σ (mm)</label><textarea id="a2x" spellcheck="false">12.3456, 2.0
+12.3482, 3.0
+12.3471, 1.5</textarea>
+      <button class="reset" data-reset="p2" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p2" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p3" role="tabpanel">
+  <h2>Confidence interval of a mean</h2>
+  <p class="q">Worked Example 4.1: n = 10, mean 125.4330 m, s = 2.79 mm. With few readings the t multiplier replaces 1.96.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="a3m">Mean</label><input id="a3m" type="number" step="0.0001" value="125.4330"><div class="row2"><div><label for="a3s">s of one reading (mm)</label><input id="a3s" type="number" step="0.01" value="2.79"></div><div><label for="a3n">Number of readings n</label><input id="a3n" type="number" step="1" value="10"></div></div><label for="a3c">Confidence level</label><select id="a3c"><option value="0.90">90%</option><option value="0.95" selected>95%</option><option value="0.99">99%</option></select>
+      <button class="reset" data-reset="p3" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p3" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p4" role="tabpanel">
+  <h2>Pope's tau test for repeated readings</h2>
+  <p class="q">Worked Example 4.2: the ten baseline readings plus a suspect eleventh reading. The test is repeated, one reading at a time, until no outlier remains.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="a4x">Readings</label><textarea id="a4x" spellcheck="false">125.432
+125.436
+125.429
+125.434
+125.431
+125.438
+125.433
+125.430
+125.435
+125.432
+125.452</textarea><label for="a4a">Overall significance level α</label><select id="a4a"><option value="0.10">10%</option><option value="0.05" selected>5%</option><option value="0.01">1%</option></select>
+      <button class="reset" data-reset="p4" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p4" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p5" role="tabpanel">
+  <h2>The normal distribution: k and probability</h2>
+  <p class="q">Table 4.1: how much of a normal distribution lies within ±k standard deviations, in one, two or three dimensions.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="a5m">Find</label><select id="a5m"><option value="k">Probability for a given k</option><option value="p" selected>k for a given probability</option></select><label for="a5k">k (multiplier)</label><input id="a5k" type="number" step="0.01" value="1.96"><label for="a5p">Probability (%)</label><input id="a5p" type="number" step="0.1" value="95">
+      <button class="reset" data-reset="p5" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p5" aria-live="polite"></div>
+  </div>
+</section>
+</main>
+</div>
+<p class="note">All computations run in your browser. Critical values are computed from the normal, t, χ² and F distributions, not looked up from tables.</p>
+<p class="note">Copyright © 2026 Yam Khoon Tor. All rights reserved. Companion to <i>Statistics Surveyors and Geomatics Professionals Should Know</i>. For the reader’s own study and professional work only; not to be copied for others, redistributed, sold or published, in original or modified form, without the author’s written permission. Results are for education and guidance and should be checked independently; the author accepts no liability for their use.</p>
+</div>
+<script>
+// ---------- statistics ----------
+const S={
+ lgamma(x){const c=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
+  if(x<0.5)return Math.log(Math.PI/Math.sin(Math.PI*x))-S.lgamma(1-x);x-=1;let a=c[0];const t=x+7.5;for(let i=1;i<9;i++)a+=c[i]/(x+i);return 0.5*Math.log(2*Math.PI)+(x+0.5)*Math.log(t)-t+Math.log(a);},
+ betacf(a,b,x){let qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;if(Math.abs(d)<1e-300)d=1e-300;d=1/d;let h=d;
+  for(let m=1;m<=300;m++){let m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));d=1+aa*d;if(Math.abs(d)<1e-300)d=1e-300;c=1+aa/c;if(Math.abs(c)<1e-300)c=1e-300;d=1/d;h*=d*c;
+   aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<1e-300)d=1e-300;c=1+aa/c;if(Math.abs(c)<1e-300)c=1e-300;d=1/d;const del=d*c;h*=del;if(Math.abs(del-1)<1e-12)break;}return h;},
+ ibeta(x,a,b){if(x<=0)return 0;if(x>=1)return 1;const bt=Math.exp(S.lgamma(a+b)-S.lgamma(a)-S.lgamma(b)+a*Math.log(x)+b*Math.log(1-x));
+  return x<(a+1)/(a+b+2)?bt*S.betacf(a,b,x)/a:1-bt*S.betacf(b,a,1-x)/b;},
+ gammp(a,x){if(x<=0)return 0;if(x<a+1){let ap=a,sum=1/a,del=sum;for(let n=0;n<500;n++){ap++;del*=x/ap;sum+=del;if(Math.abs(del)<Math.abs(sum)*1e-14)break;}return sum*Math.exp(-x+a*Math.log(x)-S.lgamma(a));}
+  let b=x+1-a,c=1e300,d=1/b,h=d;for(let i=1;i<500;i++){const an=-i*(i-a);b+=2;d=an*d+b;if(Math.abs(d)<1e-300)d=1e-300;c=b+an/c;if(Math.abs(c)<1e-300)c=1e-300;d=1/d;const del=d*c;h*=del;if(Math.abs(del-1)<1e-14)break;}
+  return 1-Math.exp(-x+a*Math.log(x)-S.lgamma(a))*h;},
+ ncdf(z){const e=Math.sign(z)*S.gammp(0.5,z*z/2);return 0.5*(1+e);},
+ ninv(p){let lo=-12,hi=12;for(let i=0;i<120;i++){const m=(lo+hi)/2;if(S.ncdf(m)<p)lo=m;else hi=m;}return (lo+hi)/2;},
+ npdf(x){return Math.exp(-x*x/2)/Math.sqrt(2*Math.PI);},
+ tcdf(t,df){const x=df/(df+t*t);const p=0.5*S.ibeta(x,df/2,0.5);return t>0?1-p:p;},
+ tinv(p,df){let lo=-1e5,hi=1e5;for(let i=0;i<220;i++){const m=(lo+hi)/2;if(S.tcdf(m,df)<p)lo=m;else hi=m;}return (lo+hi)/2;},
+ tpdf(t,df){return Math.exp(S.lgamma((df+1)/2)-S.lgamma(df/2))/Math.sqrt(df*Math.PI)*Math.pow(1+t*t/df,-(df+1)/2);},
+ chicdf(x,k){return S.gammp(k/2,x/2);},
+ chiinv(p,k){let lo=0,hi=k+80*Math.sqrt(2*k)+80;for(let i=0;i<200;i++){const m=(lo+hi)/2;if(S.chicdf(m,k)<p)lo=m;else hi=m;}return (lo+hi)/2;},
+ fcdf(f,d1,d2){if(f<=0)return 0;return S.ibeta(d1*f/(d1*f+d2),d1/2,d2/2);},
+ finv(p,d1,d2){let lo=0,hi=1e5;for(let i=0;i<220;i++){const m=(lo+hi)/2;if(S.fcdf(m,d1,d2)<p)lo=m;else hi=m;}return (lo+hi)/2;},
+ tauc(n,r,al){if(r<2)return NaN;const t=S.tinv(1-al/n/2,r-1);return t*Math.sqrt(r)/Math.sqrt(r-1+t*t);},
+ mean(a){return a.reduce((s,x)=>s+x,0)/a.length;},
+ sd(a){const m=S.mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/(a.length-1));},
+ median(a){const b=[...a].sort((x,y)=>x-y),n=b.length;return n%2?b[(n-1)/2]:(b[n/2-1]+b[n/2])/2;},
+ pctl(a,p){const b=[...a].sort((x,y)=>x-y);const h=(b.length-1)*p,l=Math.floor(h);return b[l]+(h-l)*((b[l+1]??b[l])-b[l]);}
+};
+
+// ---------- helpers ----------
+const $=id=>document.getElementById(id);
+const num=id=>parseFloat($(id).value);
+function f(x,d=2){ if(!isFinite(x))return "–"; const s=(Math.abs(x)<0.5*Math.pow(10,-d)?0:x).toFixed(d); return s.replace("-","−");}
+function sg(x,d=2){const t=f(x,d);return (x>0&&parseFloat(t)!==0?"+":"")+t;}
+function pct(a){return (+(a*100).toFixed(3)).toString()+"%";}
+const step=(html)=>`<p class="step">${html}</p>`;
+const verdict=(flag,yesText,noText)=>`<span class="verdict ${flag?'yes':'no'}">${flag?yesText:noText}</span>`;
+function bad(msg){return step(`<b>Check the inputs:</b> ${msg}`);}
+const nums=t=>t.split(/[\s,;]+/).filter(x=>x!=="").map(Number).filter(x=>isFinite(x));
+const lines=(id)=>$(id).value.split("\n").map(l=>l.trim()).filter(l=>l!=="");
+function decs(arr){let m=0;arr.forEach(x=>{const s=String(x);const i=s.indexOf(".");if(i>=0)m=Math.max(m,s.length-i-1);});return m;}
+function tbl(head,rows){return `<table class="t"><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr>${rows.map(r=>`<tr${r.bold?' style="font-weight:600"':''}>${(r.cells||r).map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</table>`;}
+const DEG=Math.PI/180, RHO=206264.806;
+
+// ---------- plots ----------
+function curvePlot(pdf,lo,hi,crit,stat,label,twoSided=true){
+  const W=420,H=150;let ymax=0;for(let v=lo;v<=hi;v+=(hi-lo)/200)ymax=Math.max(ymax,pdf(v));
+  const xs=v=>10+(v-lo)/(hi-lo)*(W-20),ys=v=>H-24-v*(H-40)/ymax;
+  let path="";for(let v=lo;v<=hi+1e-9;v+=(hi-lo)/200)path+=(path?"L":"M")+xs(v).toFixed(1)+","+ys(pdf(v)).toFixed(1);
+  const tail=(a,b)=>{let p=`M${xs(a).toFixed(1)},${ys(0).toFixed(1)}`;for(let v=a;v<=b+1e-9;v+=(hi-lo)/200)p+=`L${xs(v).toFixed(1)},${ys(pdf(v)).toFixed(1)}`;return p+`L${xs(b).toFixed(1)},${ys(0).toFixed(1)}Z`;};
+  let tails="";const cs=Array.isArray(crit)?crit:[crit];
+  if(Array.isArray(crit)){tails=`<path class="tail" d="${tail(lo,Math.max(lo,crit[0]))}"/><path class="tail" d="${tail(Math.min(hi,crit[1]),hi)}"/>`;}
+  else if(twoSided){tails=`<path class="tail" d="${tail(lo,-crit)}"/><path class="tail" d="${tail(crit,hi)}"/>`;cs.unshift(-crit);}
+  else tails=`<path class="tail" d="${tail(Math.min(crit,hi),hi)}"/>`;
+  const sc=Math.max(lo,Math.min(stat,hi));
+  return `<svg class="plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="Distribution with rejection region and test statistic">${tails}
+   <line class="axis" x1="0" y1="${ys(0)}" x2="${W}" y2="${ys(0)}"/><path class="curve" d="${path}"/>
+   <line class="zline" x1="${xs(sc)}" y1="${ys(0)}" x2="${xs(sc)}" y2="16"/><text x="${Math.min(xs(sc)+4,W-90)}" y="14">${label} = ${f(stat,2)}${stat>hi||stat<lo?' (off scale)':''}</text>
+   ${cs.map(c=>`<text x="${xs(c)-12}" y="${H-6}">${f(c,2)}</text>`).join("")}</svg>`;}
+function xyPlot(opt){ // opt: {pts:[[x,y]], lines:[{pts,cls}], bands:[{up,dn}], hlines:[{y,label}], xl, yl, W,H}
+  const W=opt.W||460,H=opt.H||240,m={l:46,r:12,t:12,b:34};
+  let xsA=[],ysA=[];(opt.pts||[]).forEach(p=>{xsA.push(p[0]);ysA.push(p[1]);});(opt.lines||[]).forEach(L=>L.pts.forEach(p=>{xsA.push(p[0]);ysA.push(p[1]);}));
+  (opt.bands||[]).forEach(B=>B.up.concat(B.dn).forEach(p=>{xsA.push(p[0]);ysA.push(p[1]);}));(opt.hlines||[]).forEach(h=>ysA.push(h.y));
+  let x0=Math.min(...xsA),x1=Math.max(...xsA),y0=Math.min(...ysA),y1=Math.max(...ysA);if(opt.yzero){y0=Math.min(0,y0);y1=Math.max(0,y1);}
+  const py=(y1-y0)*0.08||1,px=(x1-x0)*0.03||1;y0-=py;y1+=py;x0-=px;x1+=px;
+  const X=v=>m.l+(v-x0)/(x1-x0)*(W-m.l-m.r),Y=v=>H-m.b-(v-y0)/(y1-y0)*(H-m.t-m.b);
+  const ticks=(a,b,n)=>{const st0=(b-a)/n,mag=10**Math.floor(Math.log10(st0)),st=[1,2,2.5,5,10].map(k=>k*mag).find(s=>s>=st0);const o=[];for(let v=Math.ceil(a/st)*st;v<=b+1e-9;v+=st)o.push(+v.toFixed(10));return o;};
+  let s=`<svg class="plot" viewBox="0 0 ${W} ${H}" style="max-width:${W}px" role="img" aria-label="${opt.yl||'plot'}">`;
+  ticks(y0,y1,5).forEach(v=>s+=`<line class="gridl" x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l-5}" y="${Y(v)+4}" text-anchor="end">${+v.toFixed(4)}</text>`);
+  ticks(x0,x1,6).forEach(v=>s+=`<text x="${X(v)}" y="${H-m.b+14}" text-anchor="middle">${+v.toFixed(4)}</text>`);
+  s+=`<line class="axis" x1="${m.l}" x2="${W-m.r}" y1="${H-m.b}" y2="${H-m.b}"/><line class="axis" x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H-m.b}"/>`;
+  (opt.bands||[]).forEach(B=>{s+=`<polygon points="${B.up.map(p=>X(p[0])+","+Y(p[1])).join(" ")} ${[...B.dn].reverse().map(p=>X(p[0])+","+Y(p[1])).join(" ")}" style="fill:var(--accent-soft);stroke:none"/>`;});
+  (opt.hlines||[]).forEach(h=>s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(h.y)}" y2="${Y(h.y)}" style="stroke:var(--staff);stroke-dasharray:6 4"/><text x="${m.l+4}" y="${Y(h.y)-4}">${h.label||""}</text>`);
+  if(opt.zero)s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(0)}" y2="${Y(0)}" style="stroke:var(--pencil)"/>`;
+  (opt.lines||[]).forEach(L=>s+=`<polyline class="curve" points="${L.pts.map(p=>X(p[0])+","+Y(p[1])).join(" ")}" style="${L.style||''}"/>`);
+  (opt.stems||[]).forEach(p=>s+=`<line x1="${X(p[0])}" x2="${X(p[0])}" y1="${Y(0)}" y2="${Y(p[1])}" style="stroke:var(--ink);stroke-width:2"/>`);
+  (opt.pts||[]).forEach((p,i)=>s+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="${(opt.big&&opt.big.includes(i))?6:4}" class="pt" style="${(opt.big&&opt.big.includes(i))?'fill:none;stroke:var(--staff);stroke-width:2.5':''}"/>`);
+  if(opt.xl)s+=`<text x="${(m.l+W-m.r)/2}" y="${H-4}" text-anchor="middle">${opt.xl}</text>`;
+  if(opt.yl)s+=`<text transform="translate(11,${(m.t+H-m.b)/2}) rotate(-90)" text-anchor="middle">${opt.yl}</text>`;
+  return s+"</svg>";}
+function barPlot(items,xl){ // items [{label,value,hi}]
+  const W=460,rowH=26,H=items.length*rowH+30,L=170,mx=Math.max(...items.map(i=>Math.abs(i.value)),1e-12);
+  let s=`<svg class="plot" viewBox="0 0 ${W} ${H}" style="max-width:${W}px" role="img" aria-label="bar chart">`;
+  items.forEach((it,i)=>{const y=8+i*rowH,w=Math.abs(it.value)/mx*(W-L-60);s+=`<text x="${L-6}" y="${y+14}" text-anchor="end">${it.label}</text><rect x="${L}" y="${y}" width="${w}" height="18" style="fill:${it.hi?'var(--staff)':'var(--ink)'};opacity:${it.hi?0.85:0.55}"/><text x="${L+w+5}" y="${y+14}">${f(Math.abs(it.value),2)}</text>`;});
+  if(xl)s+=`<text x="${(L+W)/2}" y="${H-4}" text-anchor="middle">${xl}</text>`;return s+"</svg>";}
+
+
+function r_p1(){const x=nums($("a1x").value),n=x.length,u=+$("a1u").value,un=u===1000?" mm":"";
+ if(n<2){$("o_p1").innerHTML=bad("enter at least two readings.");return;}
+ const dp=decs(x)+1,m=S.mean(x),s=S.sd(x),se=s/Math.sqrt(n),med=S.median(x),ss=x.reduce((a,v)=>a+((v-m)*u)**2,0);
+ const rows=x.map((v,i)=>[i+1,v,sg((v-m)*u,2),f(((v-m)*u)**2,2)]);
+ let dots="";const lo=Math.min(...x),hi=Math.max(...x),W=420,H=110,X=v=>20+(v-lo)/((hi-lo)||1)*(W-40),cnt={};
+ x.forEach(v=>{cnt[v]=(cnt[v]||0)+1;dots+=`<circle class="pt" cx="${X(v)}" cy="${H-28-cnt[v]*14}" r="6"/>`;});
+ const svg=`<svg class="plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="dot plot"><rect x="${X(m-s)}" y="12" width="${Math.max(0,X(m+s)-X(m-s))}" height="${H-40}" style="fill:var(--accent-soft)"/>${dots}<line class="axis" x1="10" x2="${W-10}" y1="${H-26}" y2="${H-26}"/><line class="zline" x1="${X(m)}" x2="${X(m)}" y1="10" y2="${H-26}"/><text x="${X(m)+4}" y="22">mean</text><text x="12" y="${H-8}">${lo}</text><text x="${W-60}" y="${H-8}">${hi}</text></svg>`;
+ $("o_p1").innerHTML=step(`<b>Step 1.</b> Mean: <span class="eq">x̄ = Σx / n = ${f(x.reduce((a,b)=>a+b,0),dp)} / ${n} = ${f(m,dp)}</span>`)+
+  step(`<b>Step 2.</b> Deviations from the mean (they always add up to zero):`)+tbl(["No.","Reading","v"+un,"v²"],rows)+
+  step(`<b>Step 3.</b> Standard deviation of one reading: <span class="eq">s = √(Σv² / (n − 1)) = √(${f(ss,2)} / ${n-1}) = ${f(s*u,2)}${un}</span>`)+
+  step(`<b>Step 4.</b> Standard error of the mean: <span class="eq">s / √n = ${f(s*u,2)} / √${n} = ${f(se*u,2)}${un}</span>`)+
+  step(`<b>Check.</b> Median = ${f(med,dp)}; mean − median = ${sg((m-med)*u,2)}${un}; range = ${f((hi-lo)*u,2)}${un}.`)+svg+
+  `<p class="note">If the mean and median differ by much more than the standard error, look for a blunder before going further (Section 3.1). The shaded band is ±1 s.</p>`;}
+
+function r_p2(){const L=lines("a2x").map(l=>l.split(/[\s,;]+/).map(Number)).filter(p=>p.length>=2&&isFinite(p[0])&&p[1]>0);
+ if(L.length<2){$("o_p2").innerHTML=bad("enter at least two lines of value, σ.");return;}
+ const w=L.map(p=>1/p[1]**2),W=w.reduce((a,b)=>a+b,0),xm=L.reduce((a,p,i)=>a+w[i]*p[0],0)/W,dp=decs(L.map(p=>p[0]))+1,plain=S.mean(L.map(p=>p[0]));
+ $("o_p2").innerHTML=step(`<b>Step 1.</b> Weights w = 1/σ²:`)+tbl(["No.","Value","σ (mm)","w"],L.map((p,i)=>[i+1,p[0],f(p[1],2),f(w[i],4)]))+
+  step(`<b>Step 2.</b> Weighted mean: <span class="eq">x̄<sub>w</sub> = Σwx / Σw = ${f(xm,dp)}</span> (Σw = ${f(W,4)})`)+
+  step(`<b>Step 3.</b> Its standard deviation: <span class="eq">σ = 1 / √Σw = ${f(1/Math.sqrt(W),2)} mm</span>`)+
+  step(`<b>Compare.</b> Ordinary mean = ${f(plain,dp)}, a difference of ${sg((xm-plain)*1000,2)} mm. The weighted mean leans towards the most precise result.`);}
+
+function r_p3(){const m=num("a3m"),s=num("a3s"),n=Math.round(num("a3n")),cl=+$("a3c").value;
+ if(!(n>=2&&s>0)){$("o_p3").innerHTML=bad("n must be at least 2 and s positive.");return;}
+ const se=s/Math.sqrt(n),t=S.tinv(0.5+cl/2,n-1),z=S.ninv(0.5+cl/2),hw=t*se;
+ $("o_p3").innerHTML=step(`<b>Step 1.</b> Standard error: <span class="eq">s/√n = ${f(s,2)}/√${n} = ${f(se,2)} mm</span>`)+
+  step(`<b>Step 2.</b> t multiplier for ${n-1} degrees of freedom, ${pct(cl)}: <b>${f(t,3)}</b> (the normal value would be ${f(z,3)}).`)+
+  step(`<b>Step 3.</b> Half-width: <span class="eq">${f(t,3)} × ${f(se,2)} = ${f(hw,2)} mm</span>`)+
+  step(`<b>Result.</b> ${f(m,4)} ± ${f(hw/1000,4)} (${pct(cl)}), that is ${f(m-hw/1000,4)} to ${f(m+hw/1000,4)}.`)+
+  `<p class="note">The interval covers random errors only. It says nothing about systematic errors such as a wrong prism constant.</p>`;}
+
+function r_p4(){let x=nums($("a4x").value).map((v,i)=>({v,i:i+1}));const al=+$("a4a").value;
+ if(x.length<3){$("o_p4").innerHTML=bad("enter at least three readings.");return;}
+ let out="",round=1,rej=[];
+ while(x.length>=3&&round<10){const v=x.map(o=>o.v),n=v.length,m=S.mean(v),s=S.sd(v),tc=S.tauc(n,n-1,al);
+  const taus=x.map(o=>({...o,t:(o.v-m)/s}));const mx=taus.reduce((a,b)=>Math.abs(b.t)>Math.abs(a.t)?b:a);
+  out+=step(`<b>Round ${round}.</b> n = ${n}, mean = ${f(m,decs(v)+1)}, s = ${f(s*1000,2)} mm. Critical value τ<sub>c</sub> (n = ${n}, r = ${n-1}, α = ${pct(al)}) = <b>${f(tc,3)}</b>.`)+
+   step(`Largest |τ| is reading ${mx.i} (${mx.v}): τ = ${f(mx.t,2)}. ${Math.abs(mx.t)>tc?`${f(Math.abs(mx.t),2)} > ${f(tc,2)}: an outlier.`:`${f(Math.abs(mx.t),2)} ≤ ${f(tc,2)}: no outlier.`}`);
+  if(Math.abs(mx.t)>tc){rej.push(mx);x=x.filter(o=>o.i!==mx.i);round++;}else break;}
+ $("o_p4").innerHTML=out+verdict(rej.length>0,`Outlier: reading ${rej.map(r=>r.i).join(", ")}`,"No outlier detected")+
+  `<p class="note">τ = (x − x̄)/s uses all the readings, including the suspect one. The critical value allows for this, and shares α among the n readings. A flagged reading is a reason to look for a cause before rejecting it.</p>`;}
+
+function r_p5(){const mode=$("a5m").value;
+ if(mode==="k"){const k=num("a5k");if(!(k>0)){$("o_p5").innerHTML=bad("k must be positive.");return;}
+  const p1=2*S.ncdf(k)-1,p2=S.chicdf(k*k,2),p3=S.chicdf(k*k,3);
+  $("o_p5").innerHTML=step(`<b>Within ±${f(k,3)}σ</b>:`)+tbl(["Dimension","Probability inside","Outside"],[["1-D (height, distance)",pct(+p1.toFixed(5)),pct(+(1-p1).toFixed(5))],["2-D (ellipse, circle)",pct(+p2.toFixed(5)),pct(+(1-p2).toFixed(5))],["3-D (ellipsoid)",pct(+p3.toFixed(5)),pct(+(1-p3).toFixed(5))]])+curvePlot(S.npdf,-4,4,k,k,"k");}
+ else{const p=num("a5p")/100;if(!(p>0&&p<1)){$("o_p5").innerHTML=bad("probability must be between 0 and 100%.");return;}
+  $("o_p5").innerHTML=step(`<b>Multiplier k for ${pct(p)}</b>:`)+tbl(["Dimension","k"],[["1-D (height, distance)",f(S.ninv(0.5+p/2),3)],["2-D (ellipse, circle)",f(Math.sqrt(S.chiinv(p,2)),3)],["3-D (ellipsoid)",f(Math.sqrt(S.chiinv(p,3)),3)]])+
+  `<p class="note">For plan positions the 95% multiplier is 2.448, not 1.96 (Chapter 8).</p>`;}}
+
+
+// ---------- wiring ----------
+const renderers={p1:r_p1,p2:r_p2,p3:r_p3,p4:r_p4,p5:r_p5};
+const defaults={};
+document.querySelectorAll(".panel").forEach(p=>{defaults[p.id]={};p.querySelectorAll("input,select,textarea").forEach(el=>defaults[p.id][el.id]=el.value);
+  p.addEventListener("input",()=>renderers[p.id]());p.addEventListener("change",()=>renderers[p.id]());});
+document.querySelectorAll(".reset").forEach(b=>b.addEventListener("click",()=>{const id=b.dataset.reset;Object.entries(defaults[id]).forEach(([k,v])=>$(k).value=v);renderers[id]();}));
+const tabs=[...document.querySelectorAll('nav.rail button')];
+function show(id){tabs.forEach(t=>t.setAttribute("aria-selected",t.dataset.p===id?"true":"false"));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id===id));renderers[id]();
+  try{localStorage.setItem("p1stat-tab",id)}catch(e){}}
+tabs.forEach(t=>t.addEventListener("click",()=>show(t.dataset.p)));
+document.querySelector("nav.rail").addEventListener("keydown",e=>{const i=tabs.findIndex(t=>t.getAttribute("aria-selected")==="true");
+  if(e.key==="ArrowDown"||e.key==="ArrowRight"){e.preventDefault();const n=tabs[(i+1)%tabs.length];show(n.dataset.p);n.focus();}
+  if(e.key==="ArrowUp"||e.key==="ArrowLeft"){e.preventDefault();const n=tabs[(i-1+tabs.length)%tabs.length];show(n.dataset.p);n.focus();}});
+const root=document.documentElement;
+try{const th=localStorage.getItem("p1stat-theme");if(th)root.setAttribute("data-theme",th);}catch(e){}
+$("themeBtn").addEventListener("click",()=>{const dark=root.getAttribute("data-theme")?root.getAttribute("data-theme")==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
+  const next=dark?"light":"dark";root.setAttribute("data-theme",next);try{localStorage.setItem("p1stat-theme",next)}catch(e){}});
+Object.entries(renderers).forEach(([k,fn])=>{try{fn();}catch(err){$("o_"+k).innerHTML=bad("calculation error: "+err.message);}});
+let start="p1";
+const h0=location.hash.slice(1);if(h0&&renderers[h0])start=h0;else{try{const s=localStorage.getItem("p1stat-tab");if(s&&renderers[s])start=s;}catch(e){}}
+show(start);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<!--
+  Copyright (c) 2026 Yam Khoon Tor. All rights reserved.
+  Companion app to "Statistics Surveyors and Geomatics Professionals Should Know". Not to be copied for others,
+  redistributed, sold or published, in original or modified form, without
+  the written permission of the author. See COPYRIGHT.txt.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Statistics Surveyors and Geomatics Professionals Should Know: Interactive Apps</title>
+<style>
+:root{--paper:#F6F4EE;--ink:#1F3A5F;--text:#222;--muted:#5b6470;--rule:#d9dee5;--accent:#B3261E;--card:#fff}
+@media (prefers-color-scheme: dark){:root{--paper:#14181d;--ink:#9fc0ea;--text:#e7e9ec;--muted:#a3abb5;--rule:#2b333d;--accent:#ff8a80;--card:#1b2128}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--text);font:16px/1.55 Georgia,"Times New Roman",serif}
+.wrap{max-width:980px;margin:0 auto;padding:40px 22px 60px}
+header{border-bottom:2px solid var(--accent);padding-bottom:18px;margin-bottom:26px}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);color:var(--ink);margin:0 0 6px;line-height:1.2}
+.sub{font-size:1.1rem;color:var(--ink);margin:0}
+.tagline{font-style:italic;color:var(--muted);margin:6px 0 14px}
+.author{margin:0;color:var(--text)}
+.intro{color:var(--muted);max-width:70ch}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:22px}
+.card{display:block;background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--ink);border-radius:6px;padding:16px 18px;text-decoration:none;color:inherit;transition:transform .12s, box-shadow .12s}
+.card:first-child{border-left-color:var(--accent)}
+.card:hover,.card:focus{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.08);outline:none}
+.card h2{font-size:1.1rem;color:var(--ink);margin:4px 0 6px}
+.card p{font-size:.9rem;color:var(--muted);margin:0}
+.tag{font:600 .72rem/1 system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+footer{margin-top:34px;padding-top:14px;border-top:1px solid var(--rule);font-size:.85rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Statistics Surveyors and Geomatics Professionals Should Know</h1>
+  <p class="sub">Plain-Language Statistics with Worked Examples and Apps</p>
+  <p class="tagline">Companion apps for measurement, computation, analysis and reporting</p>
+  <p class="author"><b>Yam Khoon Tor</b>, PhD, HFSISV</p>
+</header>
+<p class="intro">These are the companion apps of the book. They run in any web browser on a computer, tablet or phone, with nothing to install. Each opens with the book’s data already entered: repeat any worked example, then change the numbers to see how the results respond. Choose an app below. For use without an internet connection, <a href="offline.zip" download>download the offline version</a> (one zip file for Windows or Mac).</p>
+<div class="grid">
+    <a class="card" href="part1_solver.html"><span class="tag">Part I</span><h2>Part I Solver</h2><p>Measurements (Chapters 1 to 4): mean, standard deviation and standard error, the weighted mean, confidence intervals with the t multiplier, Pope's tau test for outliers, and normal-distribution multipliers in one, two and three dimensions.</p></a>
+    <a class="card" href="part2_solver.html"><span class="tag">Part II</span><h2>Part II Solver</h2><p>Computation (Chapters 5 to 8): EDM specifications, centring on short lines, levelling runs and tolerances, trigonometric heights, radiated points, your own uncertainty budget, adjusting a levelling loop, and error ellipses.</p></a>
+    <a class="card" href="part3_solver.html"><span class="tag">Part III</span><h2>Part III Solver</h2><p>Analysis (Chapters 9 to 14): t, chi-square and F tests, instrument checks against specification, data snooping and MDB, the tau test, height and plan displacement tests, required precision for an Alert Level, trend fits and forecasts, hyperbolic settlement, checkpoint accuracy and control charts.</p></a>
+    <a class="card" href="part4_solver.html"><span class="tag">Part IV</span><h2>Part IV Solver</h2><p>Reporting (Chapters 15 to 17): GUM uncertainty budgets with rectangular and triangular sources, rounding results to their uncertainty, accuracy conventions (RMSE, NSSDA, LE90, CE90), and statistical tables on demand.</p></a>
+</div>
+<footer>All calculations run in your web browser; no data are sent anywhere.<br><br>Copyright © 2026 Yam Khoon Tor. All rights reserved. Companion to <i>Statistics Surveyors and Geomatics Professionals Should Know</i>. For the reader’s own study and professional work only; not to be copied for others, redistributed, sold or published, in original or modified form, without the author’s written permission. Results are for education and guidance and should be checked independently; the author accepts no liability for their use.</footer>
+</div>
+</body>
+</html>

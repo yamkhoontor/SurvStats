@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<!--
+  Copyright (c) 2026 Yam Khoon Tor. All rights reserved.
+  Companion app to "Statistics Surveyors and Geomatics Professionals Should Know". Not to be copied for others,
+  redistributed, sold or published, in original or modified form, without
+  the written permission of the author. See COPYRIGHT.txt.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Part III Solver: Statistics Surveyors and Geomatics Professionals Should Know</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F2F4EF; --sheet:#FFFFFF; --ink:#1E2B3A; --pencil:#5E6B66; --grid:#D9DFD5;
+  --staff:#B3261E; --ok:#2F6B4F; --accent-soft:#E7ECE4; --focus:#2B5C8A;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#131A1F; --sheet:#1B242B; --ink:#E6ECE8; --pencil:#9AA8A2; --grid:#2C3740;
+    --staff:#F0786A; --ok:#7CC8A0; --accent-soft:#222D35; --focus:#8EB8E0;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#131A1F; --sheet:#1B242B; --ink:#E6ECE8; --pencil:#9AA8A2; --grid:#2C3740;
+  --staff:#F0786A; --ok:#7CC8A0; --accent-soft:#222D35; --focus:#8EB8E0;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);
+  font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  font-size:16px;line-height:1.5;font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:"Source Serif 4",Georgia,"Times New Roman",serif;font-weight:650;line-height:1.2;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 20px 48px}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+header.top h1{font-size:clamp(1.5rem,3vw,2.1rem)}
+header.top p{margin:4px 0 0;color:var(--pencil);max-width:60ch}
+.theme-btn{background:none;border:1px solid var(--grid);color:var(--ink);border-radius:6px;padding:6px 10px;font:inherit;font-size:.85rem;cursor:pointer}
+.layout{display:grid;grid-template-columns:230px 1fr;gap:24px;align-items:start}
+nav.rail{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));display:flex;flex-direction:column;gap:2px}
+nav.rail button{display:grid;grid-template-columns:2.2em 1fr;align-items:baseline;text-align:left;background:none;border:0;border-left:3px solid transparent;
+  color:var(--ink);font:inherit;font-size:.95rem;padding:8px 10px;cursor:pointer;border-radius:0 6px 6px 0}
+nav.rail button .n{font-family:"Source Serif 4",Georgia,serif;color:var(--pencil);font-weight:650}
+nav.rail button[aria-selected="true"]{border-left-color:var(--staff);background:var(--accent-soft)}
+nav.rail button[aria-selected="true"] .n{color:var(--staff)}
+nav.rail button:hover{background:var(--accent-soft)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.panel{display:none}
+.panel.active{display:block}
+.panel h2{font-size:1.5rem;margin-bottom:4px}
+.panel .q{color:var(--pencil);margin:0 0 16px;max-width:70ch}
+.cols{display:grid;grid-template-columns:minmax(240px,320px) 1fr;gap:20px;align-items:start}
+.inputs{background:var(--sheet);border:1px solid var(--grid);border-radius:8px;padding:16px}
+.inputs label{display:block;font-size:.85rem;color:var(--pencil);margin:10px 0 4px}
+.inputs label:first-child{margin-top:0}
+.inputs input,.inputs select,.inputs textarea{width:100%;font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--grid);border-radius:6px;padding:7px 9px}
+.inputs textarea{min-height:120px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.reset{margin-top:14px;background:none;border:1px solid var(--grid);color:var(--ink);font:inherit;font-size:.85rem;padding:6px 10px;border-radius:6px;cursor:pointer;width:100%}
+/* the field-book working sheet: ruled lines and a red margin */
+.sheet{position:relative;background:var(--sheet);border:1px solid var(--grid);border-radius:8px;padding:16px 18px 18px 46px;
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 27px,var(--grid) 27px,var(--grid) 28px);
+  background-position:0 10px;min-height:200px;overflow-x:auto}
+.sheet::before{content:"";position:absolute;top:0;bottom:0;left:30px;width:2px;background:var(--staff);opacity:.7}
+.sheet .step{margin:0 0 6px;line-height:28px}
+.sheet .step b{font-weight:600}
+.sheet .eq{font-family:"Source Serif 4",Georgia,serif;font-size:1.05rem}
+.sheet .verdict{display:inline-block;margin-top:6px;padding:2px 10px;border-radius:4px;font-weight:600}
+.verdict.yes{color:#fff;background:var(--staff)}
+.verdict.no{color:#fff;background:var(--ok)}
+:root[data-theme="dark"] .verdict.yes,:root[data-theme="dark"] .verdict.no{color:#131A1F}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .verdict.yes,:root:not([data-theme="light"]) .verdict.no{color:#131A1F}}
+table.t{border-collapse:collapse;margin:6px 0 10px;font-size:.95rem;background:var(--sheet)}
+table.t th,table.t td{border:1px solid var(--grid);padding:4px 10px;text-align:right}
+table.t th{font-weight:600;color:var(--pencil);text-align:center}
+table.t td:first-child,table.t th:first-child{text-align:left}
+.note{color:var(--pencil);font-size:.9rem;margin-top:8px}
+svg.plot{width:100%;max-width:420px;height:auto;display:block;margin:8px 0}
+.plot .axis{stroke:var(--pencil);stroke-width:1}
+.plot .gridl{stroke:var(--grid);stroke-width:1}
+.plot .ell1{fill:none;stroke:var(--ink);stroke-width:2}
+.plot .ell2{fill:none;stroke:var(--staff);stroke-width:2;stroke-dasharray:6 4}
+.plot .pt{fill:var(--staff)}
+.plot text{fill:var(--pencil);font-size:11px;font-family:"Public Sans",system-ui,sans-serif}
+.plot .curve{fill:none;stroke:var(--ink);stroke-width:2}
+.plot .tail{fill:var(--staff);opacity:.25}
+.plot .zline{stroke:var(--staff);stroke-width:2}
+@media (max-width:860px){
+  .layout{grid-template-columns:1fr}
+  nav.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:2;flex-direction:row;overflow-x:auto;background:var(--paper);padding:6px 0;border-bottom:1px solid var(--grid)}
+  nav.rail button{grid-template-columns:auto auto;gap:6px;white-space:nowrap;border-left:0;border-bottom:3px solid transparent;border-radius:6px 6px 0 0}
+  nav.rail button[aria-selected="true"]{border-bottom-color:var(--staff)}
+  .cols{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style>
+.inputs textarea{font-family:ui-monospace,Consolas,monospace;font-size:.9rem}
+.back{font-size:.85rem;color:var(--pencil)}
+.back a{color:var(--pencil)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div>
+    <h1>Part III Solver</h1>
+    <p>Calculators for Part III, Analysis (Chapters 9 to 14). Each opens with the values of a worked example; change any number to see the working update.</p>
+    <p class="back"><a href="index.html">All apps</a></p>
+  </div>
+  <button class="theme-btn" id="themeBtn" type="button">Switch theme</button>
+</header>
+
+<div class="layout">
+<nav class="rail" role="tablist" aria-label="Calculators">
+  <button role="tab" data-p="p1" aria-selected="true"><span class="n">9</span><span>t-test (bias)</span></button><button role="tab" data-p="p2"><span class="n">9</span><span>Global test (χ²)</span></button><button role="tab" data-p="p3"><span class="n">9</span><span>F-test (precisions)</span></button><button role="tab" data-p="p4"><span class="n">9</span><span>Instrument vs spec</span></button><button role="tab" data-p="p5"><span class="n">10</span><span>Data snooping and MDB</span></button><button role="tab" data-p="p6"><span class="n">10</span><span>Tau test (adjustment)</span></button><button role="tab" data-p="p7"><span class="n">11</span><span>Height change</span></button><button role="tab" data-p="p8"><span class="n">11</span><span>Plan displacement</span></button><button role="tab" data-p="p9"><span class="n">11</span><span>Required precision</span></button><button role="tab" data-p="p10"><span class="n">12</span><span>Trend fit</span></button><button role="tab" data-p="p11"><span class="n">12</span><span>Hyperbolic settlement</span></button><button role="tab" data-p="p12"><span class="n">13</span><span>Accuracy assessment</span></button><button role="tab" data-p="p13"><span class="n">14</span><span>Control chart</span></button>
+</nav>
+
+<main>
+<section class="panel active" id="p1" role="tabpanel">
+  <h2>Is there a bias? The t-test</h2>
+  <p class="q">Worked Example 9.1: an EDM measures a known baseline 8 times; mean difference +1.6 mm, s = 1.2 mm.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="c1m">Mean difference (mm)</label><input id="c1m" type="number" step="0.1" value="1.6"><label for="c1u">Expected value μ₀ (mm)</label><input id="c1u" type="number" step="0.1" value="0"><div class="row2"><div><label for="c1s">s (mm)</label><input id="c1s" type="number" step="0.1" value="1.2"></div><div><label for="c1n">n</label><input id="c1n" type="number" step="1" value="8"></div></div><label for="c1a">α (two-sided)</label><select id="c1a"><option value="0.10">10%</option><option value="0.05" selected>5%</option><option value="0.01">1%</option></select>
+      <button class="reset" data-reset="p1" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p1" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p2" role="tabpanel">
+  <h2>Global test of an adjustment</h2>
+  <p class="q">Worked Example 9.2: r = 12; the software reports the a posteriori standard deviation of unit weight s₀ = 1.35.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="c2r">Redundancy r</label><input id="c2r" type="number" step="1" value="12"><label for="c2s">A posteriori s₀ (not squared)</label><input id="c2s" type="number" step="0.01" value="1.35"><label for="c2p">A priori σ₀</label><input id="c2p" type="number" step="0.01" value="1"><label for="c2a">α (two-sided)</label><select id="c2a"><option value="0.10">10%</option><option value="0.05" selected>5%</option><option value="0.01">1%</option></select>
+      <button class="reset" data-reset="p2" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p2" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p3" role="tabpanel">
+  <h2>Are two precisions equal? The F-test</h2>
+  <p class="q">Worked Example 9.3: Crew A s = 2.1″ (n = 12), Crew B s = 1.4″ (n = 10).</p>
+  <div class="cols">
+    <div class="inputs">
+      <div class="row2"><div><label for="c3a">s₁</label><input id="c3a" type="number" step="0.1" value="2.1"></div><div><label for="c3b">n₁</label><input id="c3b" type="number" step="1" value="12"></div></div><div class="row2"><div><label for="c3c">s₂</label><input id="c3c" type="number" step="0.1" value="1.4"></div><div><label for="c3d">n₂</label><input id="c3d" type="number" step="1" value="10"></div></div><label for="c3e">α (two-sided)</label><select id="c3e"><option value="0.10">10%</option><option value="0.05" selected>5%</option><option value="0.01">1%</option></select>
+      <button class="reset" data-reset="p3" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p3" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p4" role="tabpanel">
+  <h2>Is the instrument as good as its specification?</h2>
+  <p class="q">Worked Example 9.4 (ISO 17123 style, one-sided): s = 1.3″ from 20 degrees of freedom against a 1.0″ specification.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="c4s">Experimental s</label><input id="c4s" type="number" step="0.01" value="1.3"><label for="c4f">Degrees of freedom</label><input id="c4f" type="number" step="1" value="20"><label for="c4p">Specified σ</label><input id="c4p" type="number" step="0.01" value="1.0"><label for="c4a">α (one-sided)</label><select id="c4a"><option value="0.10">10%</option><option value="0.05" selected>5%</option><option value="0.01">1%</option></select>
+      <button class="reset" data-reset="p4" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p4" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p5" role="tabpanel">
+  <h2>Standardised residuals, data snooping and MDB</h2>
+  <p class="q">Worked Example 10.1 (with the 20 mm blunder): one line per observation: name, residual v, σ of residual, σ of observation, redundancy number r.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="c5x">Name, v, σv, σ obs, r (mm)</label><textarea id="c5x" spellcheck="false">A-B, 2.65, 1.104, 1.414, 0.606
+B-C, 2.97, 0.768, 1.225, 0.394
+C-D, -5.62, 1.085, 1.414, 0.589
+A-C, -14.38, 1.476, 1.732, 0.726
+B-D, -1.65, 1.309, 1.581, 0.685</textarea><label for="c5c">Critical value (3.29 for α = 0.1%)</label><input id="c5c" type="number" step="0.01" value="3.29">
+      <button class="reset" data-reset="p5" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p5" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p6" role="tabpanel">
+  <h2>Pope's tau test for an adjustment</h2>
+  <p class="q">Worked Example 10.2: τ = w × σ₀ / s₀, using the a posteriori s₀. Enter the standardised residuals w (computed with σ₀ = 1).</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="c6x">Name, w</label><textarea id="c6x" spellcheck="false">A-B, 2.40
+B-C, 3.87
+C-D, -5.18
+A-C, -9.74
+B-D, -1.26</textarea><div class="row2"><div><label for="c6s">A posteriori s₀</label><input id="c6s" type="number" step="0.01" value="5.63"></div><div><label for="c6r">Redundancy r</label><input id="c6r" type="number" step="1" value="3"></div></div><label for="c6a">Overall α</label><select id="c6a"><option value="0.10">10%</option><option value="0.05" selected>5%</option><option value="0.01">1%</option></select>
+      <button class="reset" data-reset="p6" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p6" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p7" role="tabpanel">
+  <h2>Has the height changed?</h2>
+  <p class="q">Worked Example 11.1: a marker changes from 12.4652 m to 12.4612 m; σ = 1.2 mm in each epoch.</p>
+  <div class="cols">
+    <div class="inputs">
+      <div class="row2"><div><label for="c7a">Height epoch 1 (m)</label><input id="c7a" type="number" step="0.0001" value="12.4652"></div><div><label for="c7b">Height epoch 2 (m)</label><input id="c7b" type="number" step="0.0001" value="12.4612"></div></div><div class="row2"><div><label for="c7c">σ epoch 1 (mm)</label><input id="c7c" type="number" step="0.1" value="1.2"></div><div><label for="c7d">σ epoch 2 (mm)</label><input id="c7d" type="number" step="0.1" value="1.2"></div></div><label for="c7e">α (two-sided)</label><select id="c7e"><option value="0.10">10%</option><option value="0.05" selected>5%</option><option value="0.01">1%</option></select>
+      <button class="reset" data-reset="p7" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p7" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p8" role="tabpanel">
+  <h2>Has the point moved in plan?</h2>
+  <p class="q">Worked Example 11.2: prism RW-07, σ = 1.5 mm per coordinate per epoch.</p>
+  <div class="cols">
+    <div class="inputs">
+      <div class="row2"><div><label for="c8a">E epoch 1 (m)</label><input id="c8a" type="number" step="0.0001" value="25012.4321"></div><div><label for="c8b">N epoch 1 (m)</label><input id="c8b" type="number" step="0.0001" value="31045.8765"></div></div><div class="row2"><div><label for="c8c">E epoch 2 (m)</label><input id="c8c" type="number" step="0.0001" value="25012.4352"></div><div><label for="c8d">N epoch 2 (m)</label><input id="c8d" type="number" step="0.0001" value="31045.8737"></div></div><label for="c8s">σ per coordinate per epoch (mm)</label><input id="c8s" type="number" step="0.1" value="1.5"><label for="c8e">α</label><select id="c8e"><option value="0.10">10%</option><option value="0.05" selected>5%</option><option value="0.01">1%</option></select>
+      <button class="reset" data-reset="p8" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p8" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p9" role="tabpanel">
+  <h2>Precision needed for a trigger level</h2>
+  <p class="q">Worked Example 11.3: an Alert Level of 10 mm, with the 95% uncertainty of a displacement at most one third of it.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="c9a">Alert Level (mm)</label><input id="c9a" type="number" step="0.1" value="10"><label for="c9r">Ratio (Alert Level ÷ 95% uncertainty)</label><input id="c9r" type="number" step="0.5" value="3"><label for="c9d">Movement</label><select id="c9d"><option value="1" selected>Height (1-D)</option><option value="2">Plan (2-D)</option></select>
+      <button class="reset" data-reset="p9" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p9" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p10" role="tabpanel">
+  <h2>Straight-line trend, forecast and Alert Level</h2>
+  <p class="q">Worked Example 12.1: marker BM-12. One line per reading: time, value.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="c10x">Time, value</label><textarea id="c10x" spellcheck="false">0, 0.0
+10, -1.0
+20, -2.6
+30, -4.1
+40, -5.1
+50, -6.6
+60, -7.2
+70, -7.6
+80, -9.9
+90, -11.2</textarea><div class="row2"><div><label for="c10f">Forecast at time</label><input id="c10f" type="number" step="1" value="120"></div><div><label for="c10a">Alert Level</label><input id="c10a" type="number" step="0.1" value="-15"></div></div>
+      <button class="reset" data-reset="p10" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p10" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p11" role="tabpanel">
+  <h2>Final settlement by the hyperbolic method</h2>
+  <p class="q">Case study, Chapter 12: settlement plate SP-7. One line per reading: day, settlement (mm). Fits t/s = α + βt.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="c11x">Day, settlement (mm)</label><textarea id="c11x" spellcheck="false">30, 68
+60, 113
+90, 141
+120, 164
+150, 181
+180, 192
+210, 204
+240, 212
+270, 219
+300, 224</textarea><label for="c11u">Target degree of consolidation (%)</label><input id="c11u" type="number" step="1" value="80">
+      <button class="reset" data-reset="p11" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p11" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p12" role="tabpanel">
+  <h2>Accuracy of a dataset from checkpoints</h2>
+  <p class="q">Worked Example 13.1: 30 checkpoint differences (dataset minus checkpoint, m). Point 18 is suspect.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="c12x">Differences</label><textarea id="c12x" spellcheck="false">0.102 -0.119 0.063 0.023 0.079 0.037 0.102 0.021 -0.003 0.046
+0.039 0.004 0.009 0.052 0.052 -0.002 0.003 0.310 0.096 0.010
+0.080 0.039 0.107 0.089 0.034 0.087 -0.023 0.077 -0.047 0.035</textarea><label for="c12e">Exclude point numbers (e.g. 18)</label><input id="c12e" type="text" value=""><div class="row2"><div><label for="c12rx">RMSE x (optional)</label><input id="c12rx" type="number" step="0.001" value="0.040"></div><div><label for="c12ry">RMSE y (optional)</label><input id="c12ry" type="number" step="0.001" value="0.035"></div></div>
+      <button class="reset" data-reset="p12" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p12" aria-live="polite"></div>
+  </div>
+</section>
+<section class="panel" id="p13" role="tabpanel">
+  <h2>Shewhart control chart</h2>
+  <p class="q">Worked Example 14.1: daily check distance to a reference prism (measured − known, mm); σ = 0.9 mm from commissioning.</p>
+  <div class="cols">
+    <div class="inputs">
+      <label for="c13x">Check values in time order</label><textarea id="c13x" spellcheck="false">0.3 1.2 -1.4 1.3 0.0 -0.6 -0.6 -0.9 -0.2 0.7
+0.5 0.5 -1.4 -1.3 2.9 0.8 1.7 1.0 -0.8 1.0</textarea><div class="row2"><div><label for="c13c">Centre line</label><input id="c13c" type="number" step="0.1" value="0"></div><div><label for="c13s">σ</label><input id="c13s" type="number" step="0.1" value="0.9"></div></div>
+      <button class="reset" data-reset="p13" type="button">Restore example values</button>
+    </div>
+    <div class="sheet" id="o_p13" aria-live="polite"></div>
+  </div>
+</section>
+</main>
+</div>
+<p class="note">All computations run in your browser. Critical values are computed from the normal, t, χ² and F distributions, not looked up from tables.</p>
+<p class="note">Copyright © 2026 Yam Khoon Tor. All rights reserved. Companion to <i>Statistics Surveyors and Geomatics Professionals Should Know</i>. For the reader’s own study and professional work only; not to be copied for others, redistributed, sold or published, in original or modified form, without the author’s written permission. Results are for education and guidance and should be checked independently; the author accepts no liability for their use.</p>
+</div>
+<script>
+// ---------- statistics ----------
+const S={
+ lgamma(x){const c=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
+  if(x<0.5)return Math.log(Math.PI/Math.sin(Math.PI*x))-S.lgamma(1-x);x-=1;let a=c[0];const t=x+7.5;for(let i=1;i<9;i++)a+=c[i]/(x+i);return 0.5*Math.log(2*Math.PI)+(x+0.5)*Math.log(t)-t+Math.log(a);},
+ betacf(a,b,x){let qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;if(Math.abs(d)<1e-300)d=1e-300;d=1/d;let h=d;
+  for(let m=1;m<=300;m++){let m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));d=1+aa*d;if(Math.abs(d)<1e-300)d=1e-300;c=1+aa/c;if(Math.abs(c)<1e-300)c=1e-300;d=1/d;h*=d*c;
+   aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<1e-300)d=1e-300;c=1+aa/c;if(Math.abs(c)<1e-300)c=1e-300;d=1/d;const del=d*c;h*=del;if(Math.abs(del-1)<1e-12)break;}return h;},
+ ibeta(x,a,b){if(x<=0)return 0;if(x>=1)return 1;const bt=Math.exp(S.lgamma(a+b)-S.lgamma(a)-S.lgamma(b)+a*Math.log(x)+b*Math.log(1-x));
+  return x<(a+1)/(a+b+2)?bt*S.betacf(a,b,x)/a:1-bt*S.betacf(b,a,1-x)/b;},
+ gammp(a,x){if(x<=0)return 0;if(x<a+1){let ap=a,sum=1/a,del=sum;for(let n=0;n<500;n++){ap++;del*=x/ap;sum+=del;if(Math.abs(del)<Math.abs(sum)*1e-14)break;}return sum*Math.exp(-x+a*Math.log(x)-S.lgamma(a));}
+  let b=x+1-a,c=1e300,d=1/b,h=d;for(let i=1;i<500;i++){const an=-i*(i-a);b+=2;d=an*d+b;if(Math.abs(d)<1e-300)d=1e-300;c=b+an/c;if(Math.abs(c)<1e-300)c=1e-300;d=1/d;const del=d*c;h*=del;if(Math.abs(del-1)<1e-14)break;}
+  return 1-Math.exp(-x+a*Math.log(x)-S.lgamma(a))*h;},
+ ncdf(z){const e=Math.sign(z)*S.gammp(0.5,z*z/2);return 0.5*(1+e);},
+ ninv(p){let lo=-12,hi=12;for(let i=0;i<120;i++){const m=(lo+hi)/2;if(S.ncdf(m)<p)lo=m;else hi=m;}return (lo+hi)/2;},
+ npdf(x){return Math.exp(-x*x/2)/Math.sqrt(2*Math.PI);},
+ tcdf(t,df){const x=df/(df+t*t);const p=0.5*S.ibeta(x,df/2,0.5);return t>0?1-p:p;},
+ tinv(p,df){let lo=-1e5,hi=1e5;for(let i=0;i<220;i++){const m=(lo+hi)/2;if(S.tcdf(m,df)<p)lo=m;else hi=m;}return (lo+hi)/2;},
+ tpdf(t,df){return Math.exp(S.lgamma((df+1)/2)-S.lgamma(df/2))/Math.sqrt(df*Math.PI)*Math.pow(1+t*t/df,-(df+1)/2);},
+ chicdf(x,k){return S.gammp(k/2,x/2);},
+ chiinv(p,k){let lo=0,hi=k+80*Math.sqrt(2*k)+80;for(let i=0;i<200;i++){const m=(lo+hi)/2;if(S.chicdf(m,k)<p)lo=m;else hi=m;}return (lo+hi)/2;},
+ fcdf(f,d1,d2){if(f<=0)return 0;return S.ibeta(d1*f/(d1*f+d2),d1/2,d2/2);},
+ finv(p,d1,d2){let lo=0,hi=1e5;for(let i=0;i<220;i++){const m=(lo+hi)/2;if(S.fcdf(m,d1,d2)<p)lo=m;else hi=m;}return (lo+hi)/2;},
+ tauc(n,r,al){if(r<2)return NaN;const t=S.tinv(1-al/n/2,r-1);return t*Math.sqrt(r)/Math.sqrt(r-1+t*t);},
+ mean(a){return a.reduce((s,x)=>s+x,0)/a.length;},
+ sd(a){const m=S.mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/(a.length-1));},
+ median(a){const b=[...a].sort((x,y)=>x-y),n=b.length;return n%2?b[(n-1)/2]:(b[n/2-1]+b[n/2])/2;},
+ pctl(a,p){const b=[...a].sort((x,y)=>x-y);const h=(b.length-1)*p,l=Math.floor(h);return b[l]+(h-l)*((b[l+1]??b[l])-b[l]);}
+};
+
+// ---------- helpers ----------
+const $=id=>document.getElementById(id);
+const num=id=>parseFloat($(id).value);
+function f(x,d=2){ if(!isFinite(x))return "–"; const s=(Math.abs(x)<0.5*Math.pow(10,-d)?0:x).toFixed(d); return s.replace("-","−");}
+function sg(x,d=2){const t=f(x,d);return (x>0&&parseFloat(t)!==0?"+":"")+t;}
+function pct(a){return (+(a*100).toFixed(3)).toString()+"%";}
+const step=(html)=>`<p class="step">${html}</p>`;
+const verdict=(flag,yesText,noText)=>`<span class="verdict ${flag?'yes':'no'}">${flag?yesText:noText}</span>`;
+function bad(msg){return step(`<b>Check the inputs:</b> ${msg}`);}
+const nums=t=>t.split(/[\s,;]+/).filter(x=>x!=="").map(Number).filter(x=>isFinite(x));
+const lines=(id)=>$(id).value.split("\n").map(l=>l.trim()).filter(l=>l!=="");
+function decs(arr){let m=0;arr.forEach(x=>{const s=String(x);const i=s.indexOf(".");if(i>=0)m=Math.max(m,s.length-i-1);});return m;}
+function tbl(head,rows){return `<table class="t"><tr>${head.map(h=>`<th>${h}</th>`).join("")}</tr>${rows.map(r=>`<tr${r.bold?' style="font-weight:600"':''}>${(r.cells||r).map(c=>`<td>${c}</td>`).join("")}</tr>`).join("")}</table>`;}
+const DEG=Math.PI/180, RHO=206264.806;
+
+// ---------- plots ----------
+function curvePlot(pdf,lo,hi,crit,stat,label,twoSided=true){
+  const W=420,H=150;let ymax=0;for(let v=lo;v<=hi;v+=(hi-lo)/200)ymax=Math.max(ymax,pdf(v));
+  const xs=v=>10+(v-lo)/(hi-lo)*(W-20),ys=v=>H-24-v*(H-40)/ymax;
+  let path="";for(let v=lo;v<=hi+1e-9;v+=(hi-lo)/200)path+=(path?"L":"M")+xs(v).toFixed(1)+","+ys(pdf(v)).toFixed(1);
+  const tail=(a,b)=>{let p=`M${xs(a).toFixed(1)},${ys(0).toFixed(1)}`;for(let v=a;v<=b+1e-9;v+=(hi-lo)/200)p+=`L${xs(v).toFixed(1)},${ys(pdf(v)).toFixed(1)}`;return p+`L${xs(b).toFixed(1)},${ys(0).toFixed(1)}Z`;};
+  let tails="";const cs=Array.isArray(crit)?crit:[crit];
+  if(Array.isArray(crit)){tails=`<path class="tail" d="${tail(lo,Math.max(lo,crit[0]))}"/><path class="tail" d="${tail(Math.min(hi,crit[1]),hi)}"/>`;}
+  else if(twoSided){tails=`<path class="tail" d="${tail(lo,-crit)}"/><path class="tail" d="${tail(crit,hi)}"/>`;cs.unshift(-crit);}
+  else tails=`<path class="tail" d="${tail(Math.min(crit,hi),hi)}"/>`;
+  const sc=Math.max(lo,Math.min(stat,hi));
+  return `<svg class="plot" viewBox="0 0 ${W} ${H}" role="img" aria-label="Distribution with rejection region and test statistic">${tails}
+   <line class="axis" x1="0" y1="${ys(0)}" x2="${W}" y2="${ys(0)}"/><path class="curve" d="${path}"/>
+   <line class="zline" x1="${xs(sc)}" y1="${ys(0)}" x2="${xs(sc)}" y2="16"/><text x="${Math.min(xs(sc)+4,W-90)}" y="14">${label} = ${f(stat,2)}${stat>hi||stat<lo?' (off scale)':''}</text>
+   ${cs.map(c=>`<text x="${xs(c)-12}" y="${H-6}">${f(c,2)}</text>`).join("")}</svg>`;}
+function xyPlot(opt){ // opt: {pts:[[x,y]], lines:[{pts,cls}], bands:[{up,dn}], hlines:[{y,label}], xl, yl, W,H}
+  const W=opt.W||460,H=opt.H||240,m={l:46,r:12,t:12,b:34};
+  let xsA=[],ysA=[];(opt.pts||[]).forEach(p=>{xsA.push(p[0]);ysA.push(p[1]);});(opt.lines||[]).forEach(L=>L.pts.forEach(p=>{xsA.push(p[0]);ysA.push(p[1]);}));
+  (opt.bands||[]).forEach(B=>B.up.concat(B.dn).forEach(p=>{xsA.push(p[0]);ysA.push(p[1]);}));(opt.hlines||[]).forEach(h=>ysA.push(h.y));
+  let x0=Math.min(...xsA),x1=Math.max(...xsA),y0=Math.min(...ysA),y1=Math.max(...ysA);if(opt.yzero){y0=Math.min(0,y0);y1=Math.max(0,y1);}
+  const py=(y1-y0)*0.08||1,px=(x1-x0)*0.03||1;y0-=py;y1+=py;x0-=px;x1+=px;
+  const X=v=>m.l+(v-x0)/(x1-x0)*(W-m.l-m.r),Y=v=>H-m.b-(v-y0)/(y1-y0)*(H-m.t-m.b);
+  const ticks=(a,b,n)=>{const st0=(b-a)/n,mag=10**Math.floor(Math.log10(st0)),st=[1,2,2.5,5,10].map(k=>k*mag).find(s=>s>=st0);const o=[];for(let v=Math.ceil(a/st)*st;v<=b+1e-9;v+=st)o.push(+v.toFixed(10));return o;};
+  let s=`<svg class="plot" viewBox="0 0 ${W} ${H}" style="max-width:${W}px" role="img" aria-label="${opt.yl||'plot'}">`;
+  ticks(y0,y1,5).forEach(v=>s+=`<line class="gridl" x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${m.l-5}" y="${Y(v)+4}" text-anchor="end">${+v.toFixed(4)}</text>`);
+  ticks(x0,x1,6).forEach(v=>s+=`<text x="${X(v)}" y="${H-m.b+14}" text-anchor="middle">${+v.toFixed(4)}</text>`);
+  s+=`<line class="axis" x1="${m.l}" x2="${W-m.r}" y1="${H-m.b}" y2="${H-m.b}"/><line class="axis" x1="${m.l}" x2="${m.l}" y1="${m.t}" y2="${H-m.b}"/>`;
+  (opt.bands||[]).forEach(B=>{s+=`<polygon points="${B.up.map(p=>X(p[0])+","+Y(p[1])).join(" ")} ${[...B.dn].reverse().map(p=>X(p[0])+","+Y(p[1])).join(" ")}" style="fill:var(--accent-soft);stroke:none"/>`;});
+  (opt.hlines||[]).forEach(h=>s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(h.y)}" y2="${Y(h.y)}" style="stroke:var(--staff);stroke-dasharray:6 4"/><text x="${m.l+4}" y="${Y(h.y)-4}">${h.label||""}</text>`);
+  if(opt.zero)s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(0)}" y2="${Y(0)}" style="stroke:var(--pencil)"/>`;
+  (opt.lines||[]).forEach(L=>s+=`<polyline class="curve" points="${L.pts.map(p=>X(p[0])+","+Y(p[1])).join(" ")}" style="${L.style||''}"/>`);
+  (opt.stems||[]).forEach(p=>s+=`<line x1="${X(p[0])}" x2="${X(p[0])}" y1="${Y(0)}" y2="${Y(p[1])}" style="stroke:var(--ink);stroke-width:2"/>`);
+  (opt.pts||[]).forEach((p,i)=>s+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="${(opt.big&&opt.big.includes(i))?6:4}" class="pt" style="${(opt.big&&opt.big.includes(i))?'fill:none;stroke:var(--staff);stroke-width:2.5':''}"/>`);
+  if(opt.xl)s+=`<text x="${(m.l+W-m.r)/2}" y="${H-4}" text-anchor="middle">${opt.xl}</text>`;
+  if(opt.yl)s+=`<text transform="translate(11,${(m.t+H-m.b)/2}) rotate(-90)" text-anchor="middle">${opt.yl}</text>`;
+  return s+"</svg>";}
+function barPlot(items,xl){ // items [{label,value,hi}]
+  const W=460,rowH=26,H=items.length*rowH+30,L=170,mx=Math.max(...items.map(i=>Math.abs(i.value)),1e-12);
+  let s=`<svg class="plot" viewBox="0 0 ${W} ${H}" style="max-width:${W}px" role="img" aria-label="bar chart">`;
+  items.forEach((it,i)=>{const y=8+i*rowH,w=Math.abs(it.value)/mx*(W-L-60);s+=`<text x="${L-6}" y="${y+14}" text-anchor="end">${it.label}</text><rect x="${L}" y="${y}" width="${w}" height="18" style="fill:${it.hi?'var(--staff)':'var(--ink)'};opacity:${it.hi?0.85:0.55}"/><text x="${L+w+5}" y="${y+14}">${f(Math.abs(it.value),2)}</text>`;});
+  if(xl)s+=`<text x="${(L+W)/2}" y="${H-4}" text-anchor="middle">${xl}</text>`;return s+"</svg>";}
+
+
+function r_p1(){const m=num("c1m"),mu=num("c1u"),s=num("c1s"),n=Math.round(num("c1n")),al=+$("c1a").value;if(!(s>0&&n>=2)){$("o_p1").innerHTML=bad("s > 0 and n ≥ 2.");return;}
+ const t=(m-mu)/(s/Math.sqrt(n)),c=S.tinv(1-al/2,n-1),p=2*(1-S.tcdf(Math.abs(t),n-1));
+ $("o_p1").innerHTML=step(`<b>Step 1.</b> H₀: no bias (μ = ${f(mu,2)}). α = ${pct(al)}, two-sided, ${n-1} degrees of freedom.`)+
+  step(`<b>Step 2.</b> <span class="eq">t = (x̄ − μ₀)/(s/√n) = ${f(m-mu,2)} / ${f(s/Math.sqrt(n),3)} = ${f(t,2)}</span>`)+
+  step(`<b>Step 3.</b> Critical t = ${f(c,3)}; p-value = ${f(p,4)}.`)+verdict(Math.abs(t)>c,"Significant bias","No significant bias detected")+curvePlot(x=>S.tpdf(x,n-1),-5,5,c,t,"t")+
+  `<p class="note">"No significant bias" does not prove there is none: with few readings the test has little power.</p>`;}
+
+function r_p2(){const r=Math.round(num("c2r")),s=num("c2s"),p=num("c2p"),al=+$("c2a").value;if(!(r>=1&&s>0&&p>0)){$("o_p2").innerHTML=bad("r ≥ 1, s₀ > 0, σ₀ > 0.");return;}
+ const x=r*s*s/(p*p),lo=S.chiinv(al/2,r),hi=S.chiinv(1-al/2,r);
+ $("o_p2").innerHTML=step(`<b>Step 1.</b> <span class="eq">s₀² = ${f(s,3)}² = ${f(s*s,3)}</span>`)+step(`<b>Step 2.</b> <span class="eq">χ² = r s₀² / σ₀² = ${r} × ${f(s*s,3)} / ${f(p*p,3)} = ${f(x,2)}</span>`)+
+  step(`<b>Step 3.</b> Bounds for r = ${r}: ${f(lo,2)} to ${f(hi,2)}.`)+verdict(x<lo||x>hi,x>hi?"Fails high: look for a blunder":"Fails low: weights too pessimistic","Passes: observations fit the assumed precisions")+
+  curvePlot(v=>Math.exp((r/2-1)*Math.log(Math.max(v,1e-12))-v/2-(r/2)*Math.log(2)-S.lgamma(r/2)),0,Math.max(hi*1.5,x*1.1),[lo,hi],x,"χ²")+
+  `<p class="note">Software often labels s₀ as "σ₀" or "sigma0". It is the a posteriori value computed from the residuals; the a priori σ₀ is usually 1.</p>`;}
+
+function r_p3(){let s1=num("c3a"),n1=Math.round(num("c3b")),s2=num("c3c"),n2=Math.round(num("c3d"));const al=+$("c3e").value;if(!(s1>0&&s2>0&&n1>=2&&n2>=2)){$("o_p3").innerHTML=bad("check s and n.");return;}
+ if(s2>s1){[s1,s2]=[s2,s1];[n1,n2]=[n2,n1];}const F=s1*s1/(s2*s2),c=S.finv(1-al/2,n1-1,n2-1),p=Math.min(1,2*(1-S.fcdf(F,n1-1,n2-1)));
+ $("o_p3").innerHTML=step(`<b>Step 1.</b> Larger variance on top: <span class="eq">F = ${f(s1,2)}² / ${f(s2,2)}² = ${f(F,3)}</span>`)+step(`<b>Step 2.</b> Critical F(${n1-1}, ${n2-1}) at ${pct(al)} two-sided = ${f(c,3)}; p = ${f(p,3)}.`)+
+  verdict(F>c,"Precisions differ significantly","No significant difference detected");}
+
+function r_p4(){const s=num("c4s"),df=Math.round(num("c4f")),sp=num("c4p"),al=+$("c4a").value;if(!(s>0&&df>=1&&sp>0)){$("o_p4").innerHTML=bad("check inputs.");return;}
+ const x=df*s*s/(sp*sp),c=S.chiinv(1-al,df);
+ $("o_p4").innerHTML=step(`<b>Step 1.</b> H₀: σ ≤ ${f(sp,2)}; H₁: σ > ${f(sp,2)} (one-sided).`)+step(`<b>Step 2.</b> <span class="eq">χ² = df × s² / σ² = ${df} × ${f(s*s,3)} / ${f(sp*sp,3)} = ${f(x,2)}</span>`)+
+  step(`<b>Step 3.</b> Critical value χ²(${df}) at ${pct(1-al)} = ${f(c,2)}. The largest s consistent with the specification is ${f(sp*Math.sqrt(c/df),2)}.`)+
+  verdict(x>c,"Worse than specification: service","Consistent with specification");}
+
+function r_p5(){const L=lines("c5x").map(l=>{const p=l.split(",");return {n:p[0],v:+p[1],sv:+p[2],so:+p[3],r:+p[4]};}).filter(o=>isFinite(o.v)&&o.sv>0);const c=num("c5c");
+ if(!L.length){$("o_p5").innerHTML=bad("enter lines of name, v, σv, σ obs, r.");return;}
+ L.forEach(o=>{o.w=o.v/o.sv;o.mdb=o.r>0?4.13*o.so/Math.sqrt(o.r):Infinity;});const mx=L.reduce((a,b)=>Math.abs(b.w)>Math.abs(a.w)?b:a);
+ $("o_p5").innerHTML=tbl(["Obs.","v","w = v/σv","Flag","r","MDB = 4.13σ/√r"],L.map(o=>({cells:[o.n,f(o.v,2),f(o.w,2),Math.abs(o.w)>c?"CHECK":"",f(o.r,2),isFinite(o.mdb)?f(o.mdb,1):"∞ (unchecked)"],bold:o===mx})))+
+  step(`<b>Largest |w|:</b> ${mx.n}, w = ${f(mx.w,2)}.`)+verdict(Math.abs(mx.w)>c,`Remove or re-measure ${mx.n}, then re-adjust`,"No blunder detected")+
+  barPlot(L.map(o=>({label:o.n,value:o.w,hi:Math.abs(o.w)>c})),"|standardised residual|")+`<p class="note">Remove only one observation per cycle: a blunder leaks into its neighbours (Section 10.3).</p>`;}
+
+function r_p6(){const L=lines("c6x").map(l=>{const p=l.split(",");return {n:p[0],w:+p[1]};}).filter(o=>isFinite(o.w));const s0=num("c6s"),r=Math.round(num("c6r")),al=+$("c6a").value,n=L.length;
+ if(!(n>=2&&s0>0&&r>=2)){$("o_p6").innerHTML=bad("need at least two observations, s₀ > 0 and r ≥ 2.");return;}
+ const tc=S.tauc(n,r,al);L.forEach(o=>o.t=o.w/s0);const mx=L.reduce((a,b)=>Math.abs(b.t)>Math.abs(a.t)?b:a);
+ $("o_p6").innerHTML=step(`<b>Step 1.</b> <span class="eq">τ = w / s₀</span> for each observation (σ₀ = 1):`)+tbl(["Obs.","w","τ"],L.map(o=>({cells:[o.n,f(o.w,2),f(o.t,3)],bold:o===mx})))+
+  step(`<b>Step 2.</b> Critical value for n = ${n}, r = ${r}, α = ${pct(al)}: <b>τ<sub>c</sub> = ${f(tc,3)}</b>. The largest possible |τ| is √r = ${f(Math.sqrt(r),3)}.`)+
+  verdict(Math.abs(mx.t)>tc,`Outlier: ${mx.n}`,"No outlier detected")+`<p class="note">With little redundancy the tau test is weak, because the blunder inflates s₀. Prefer data snooping when the a priori σ is reliable (Section 10.4).</p>`;}
+
+function r_p7(){const d=(num("c7b")-num("c7a"))*1000,s1=num("c7c"),s2=num("c7d"),al=+$("c7e").value;if(!(s1>0||s2>0)){$("o_p7").innerHTML=bad("enter σ.");return;}
+ const sd=Math.hypot(s1,s2),z=Math.abs(d)/sd,c=S.ninv(1-al/2);
+ $("o_p7").innerHTML=step(`<b>Step 1.</b> Change <span class="eq">d = ${sg(d,1)} mm</span>`)+step(`<b>Step 2.</b> <span class="eq">σ<sub>d</sub> = √(${f(s1,2)}² + ${f(s2,2)}²) = ${f(sd,2)} mm</span>`)+
+  step(`<b>Step 3.</b> <span class="eq">z = |d|/σ<sub>d</sub> = ${f(z,2)}</span>; critical value ${f(c,3)}. Uncertainty of the change: ±${f(c*sd,1)} mm (${pct(1-al)}).`)+
+  verdict(z>c,"The height has changed","Change not proven")+curvePlot(S.npdf,-4.5,4.5,c,z,"z")+`<p class="note">The smallest change this survey can confirm is ${f(c*sd,1)} mm (about ${f(c*sd/Math.max(s1,s2),1)} σ), see Section 11.2.</p>`;}
+
+function r_p8(){const dE=(num("c8c")-num("c8a"))*1000,dN=(num("c8d")-num("c8b"))*1000,s=num("c8s"),al=+$("c8e").value;if(!(s>0)){$("o_p8").innerHTML=bad("σ must be positive.");return;}
+ const sd=s*Math.SQRT2,T=(dE*dE+dN*dN)/(sd*sd),c=S.chiinv(1-al,2),R=Math.sqrt(c)*sd,d=Math.hypot(dE,dN);
+ const W=300,cx=150,cy=150,sc=120/Math.max(R,d,1e-9);
+ const svg=`<svg class="plot" viewBox="0 0 300 300" style="max-width:300px" role="img" aria-label="displacement and circle"><line class="axis" x1="150" y1="10" x2="150" y2="290"/><line class="axis" x1="10" y1="150" x2="290" y2="150"/>
+ <circle class="ell2" cx="${cx}" cy="${cy}" r="${R*sc}"/><circle class="ell1" cx="${cx}" cy="${cy}" r="${sd*sc}"/><line class="zline" x1="${cx}" y1="${cy}" x2="${cx+dE*sc}" y2="${cy-dN*sc}"/><circle class="pt" cx="${cx+dE*sc}" cy="${cy-dN*sc}" r="4"/><text x="14" y="294">dashed: ${pct(1-al)} circle, radius ${f(R,1)} mm</text></svg>`;
+ $("o_p8").innerHTML=step(`<b>Step 1.</b> <span class="eq">ΔE = ${sg(dE,1)}, ΔN = ${sg(dN,1)}, d = ${f(d,1)} mm</span>`)+step(`<b>Step 2.</b> <span class="eq">σ<sub>d</sub> = σ√2 = ${f(sd,2)} mm</span> per coordinate`)+
+  step(`<b>Step 3.</b> <span class="eq">T = (ΔE² + ΔN²)/σ<sub>d</sub>² = ${f(T,2)}</span>; critical χ²(2) = ${f(c,2)}.`)+
+  step(`<b>Equivalently:</b> the ${pct(1-al)} circle of the difference has radius √${f(c,2)} × σ<sub>d</sub> = ${f(Math.sqrt(c),3)} × ${f(sd,2)} = ${f(R,1)} mm.`)+verdict(T>c,"The point has moved","Movement not proven")+svg;}
+
+function r_p9(){const AL=num("c9a"),R=num("c9r"),dim=+$("c9d").value;if(!(AL>0&&R>0)){$("o_p9").innerHTML=bad("positive values please.");return;}
+ const U=AL/R,k=dim===1?1.96:Math.sqrt(S.chiinv(0.95,2)),sd=U/k,se=sd/Math.SQRT2;
+ $("o_p9").innerHTML=step(`<b>Step 1.</b> Required 95% uncertainty of a displacement: <span class="eq">U ≤ ${f(AL,1)}/${f(R,1)} = ${f(U,2)} mm</span>`)+
+  step(`<b>Step 2.</b> ${dim===1?"Height: 1.96":"Plan: 2.448"} → <span class="eq">σ<sub>d</sub> ≤ ${f(U,2)}/${f(k,3)} = ${f(sd,2)} mm</span>`)+
+  step(`<b>Step 3.</b> Each epoch: <span class="eq">σ ≤ σ<sub>d</sub>/√2 = ${f(se,2)} mm</span>${dim===2?" per coordinate":""}.`)+
+  `<p class="note">With this precision, a movement of ${f(U,1)} mm (1/${f(R,0)} of the Alert Level) is already significant, giving early warning, and a reading at the Alert Level is clearly distinguished from noise.</p>`;}
+
+function r_p10(){const P=lines("c10x").map(l=>l.split(/[\s,;]+/).map(Number)).filter(p=>p.length>=2&&isFinite(p[0])&&isFinite(p[1]));const n=P.length;if(n<3){$("o_p10").innerHTML=bad("at least three readings.");return;}
+ const t=P.map(p=>p[0]),y=P.map(p=>p[1]),tm=S.mean(t),ym=S.mean(y),Sxx=t.reduce((a,v)=>a+(v-tm)**2,0),b=t.reduce((a,v,i)=>a+(v-tm)*(y[i]-ym),0)/Sxx,a0=ym-b*tm;
+ const res=y.map((v,i)=>v-(a0+b*t[i])),s=Math.sqrt(res.reduce((q,v)=>q+v*v,0)/(n-2)),R2=1-res.reduce((q,v)=>q+v*v,0)/y.reduce((q,v)=>q+(v-ym)**2,0),seb=s/Math.sqrt(Sxx),tt=S.tinv(0.975,n-2);
+ const x0=num("c10f"),y0=a0+b*x0,pi=x=>tt*s*Math.sqrt(1+1/n+(x-tm)**2/Sxx),AL=num("c10a");
+ const xmax=Math.max(...t,isFinite(x0)?x0:-Infinity),xs=[];for(let i=0;i<=40;i++)xs.push(Math.min(...t)+(xmax-Math.min(...t))*i/40);
+ let out=step(`<b>Step 1.</b> Least squares line: <span class="eq">y = ${f(a0,3)} ${b<0?"−":"+"} ${f(Math.abs(b),4)} t</span>`)+
+  step(`<b>Step 2.</b> Rate ${f(b,4)} per unit time; 95% interval ${f(b-tt*seb,4)} to ${f(b+tt*seb,4)} (t = ${f(tt,3)}, ${n-2} df).`)+
+  step(`<b>Step 3.</b> R² = ${f(R2,4)}; s of residuals = ${f(s,3)}. Compare s with the expected survey precision.`)+
+  step(`<b>Step 4.</b> Forecast at ${x0}: <span class="eq">${f(y0,2)} ± ${f(pi(x0),2)}</span> (95% prediction interval).`);
+ if(isFinite(AL)&&b!==0){const tx=(AL-a0)/b;out+=step(`<b>Alert Level.</b> The line reaches ${f(AL,1)} at time ${f(tx,1)}.`);}
+ out+=xyPlot({pts:P,lines:[{pts:xs.map(x=>[x,a0+b*x])}],bands:[{up:xs.map(x=>[x,a0+b*x+pi(x)]),dn:xs.map(x=>[x,a0+b*x-pi(x)])}],hlines:isFinite(AL)?[{y:AL,label:"Alert Level"}]:[],xl:"Time",yl:"Value"})+
+  step(`<b>Residuals</b> (look for curves, steps or one large value):`)+xyPlot({pts:t.map((v,i)=>[v,res[i]]),stems:t.map((v,i)=>[v,res[i]]),zero:true,yzero:true,H:150,xl:"Time",yl:"Residual"});
+ $("o_p10").innerHTML=out;}
+
+function r_p11(){const P=lines("c11x").map(l=>l.split(/[\s,;]+/).map(Number)).filter(p=>p.length>=2&&p[0]>0&&p[1]!==0);const n=P.length;if(n<3){$("o_p11").innerHTML=bad("at least three readings.");return;}
+ const t=P.map(p=>p[0]),r=P.map(p=>p[0]/p[1]),tm=S.mean(t),rm=S.mean(r),Sxx=t.reduce((a,v)=>a+(v-tm)**2,0),be=t.reduce((a,v,i)=>a+(v-tm)*(r[i]-rm),0)/Sxx,al=rm-be*tm;
+ const R2=1-r.reduce((q,v,i)=>q+(v-(al+be*t[i]))**2,0)/r.reduce((q,v)=>q+(v-rm)**2,0),fin=1/be,U=num("c11u")/100,last=P[n-1];
+ const tU=al/(be/U-be),xs=[];const xm=Math.max(...t,isFinite(tU)?tU:0)*1.1;for(let i=1;i<=60;i++)xs.push(xm*i/60);
+ $("o_p11").innerHTML=step(`<b>Step 1.</b> Fit a straight line to t/s against t: <span class="eq">t/s = ${f(al,4)} + ${f(be,6)} t</span>, R² = ${f(R2,4)}.`)+
+  step(`<b>Step 2.</b> Final settlement <span class="eq">s<sub>final</sub> = 1/β = ${f(fin,0)} mm</span>.`)+
+  step(`<b>Step 3.</b> At day ${last[0]}, settlement ${last[1]} mm = <b>${f(100*last[1]/fin,0)}%</b> of the final value.`)+
+  step(`<b>Step 4.</b> ${f(U*100,0)}% is reached at <span class="eq">t = α / (β/${f(U,2)} − β) = ${f(tU,0)}</span> days.`)+
+  verdict(last[1]/fin<U,`Not yet ${f(U*100,0)}%`,`${f(U*100,0)}% reached`)+
+  xyPlot({pts:P,lines:[{pts:xs.map(x=>[x,x/(al+be*x)])}],hlines:[{y:fin,label:"final"}],xl:"Day",yl:"Settlement (mm)"})+`<p class="note">Refit as new readings arrive. The decision belongs to the geotechnical engineer.</p>`;}
+
+function r_p12(){const all=nums($("c12x").value),ex=new Set(nums($("c12e").value).map(v=>v-1)),d=all.filter((_,i)=>!ex.has(i)),n=d.length;if(n<3){$("o_p12").innerHTML=bad("at least three differences.");return;}
+ const m=S.mean(d),s=S.sd(d),rm=Math.sqrt(d.reduce((q,v)=>q+v*v,0)/n),med=S.median(d),nm=1.4826*S.median(d.map(v=>Math.abs(v-med))),ab=d.map(Math.abs),rx=num("c12rx"),ry=num("c12ry");
+ let out=tbl(["Statistic","Value"],[["Checkpoints used",`${n} of ${all.length}`],["Mean error (bias)",f(m,3)],["Standard deviation",f(s,3)],["RMSE",f(rm,3)],["Median",f(med,3)],["NMAD = 1.4826 × median|Δ − median|",f(nm,3)],["90th percentile of |Δ|",f(S.pctl(ab,0.9),3)],["95th percentile of |Δ|",f(S.pctl(ab,0.95),3)],["NSSDA vertical 95% = 1.96 × RMSE",f(1.96*rm,3)],["LE90 = 1.6449 × RMSE",f(1.6449*rm,3)]]);
+ if(isFinite(rx)&&isFinite(ry)){const rr=Math.hypot(rx,ry);out+=tbl(["Horizontal","Value"],[["RMSE r = √(RMSE x² + RMSE y²)",f(rr,3)],["NSSDA horizontal 95% = 1.7308 × RMSE r",f(1.7308*rr,3)]]);}
+ if(n<30)out+=step(`<b>Note:</b> fewer than 30 checkpoints; the RMSE itself is uncertain by about ±${f(196/Math.sqrt(2*n),0)}%.`);
+ if(s>1.5*nm)out+=step(`<b>Warning:</b> s is much larger than NMAD, so a few large errors are present. Look at them.`);
+ const lo=Math.min(...all),hi=Math.max(...all),nb=16,w=(hi-lo)/nb||1,bins=Array(nb+1).fill(0);all.forEach(v=>bins[Math.min(nb,Math.floor((v-lo)/w))]++);
+ out+=xyPlot({pts:all.map((v,i)=>[i+1,v]),big:[...ex],zero:true,yzero:true,H:180,xl:"Checkpoint",yl:"Difference"});
+ $("o_p12").innerHTML=out+`<p class="note">Report the mean error with the RMSE, so a bias is visible. Excluded points are circled.</p>`;}
+
+function r_p13(){const x=nums($("c13x").value),c=num("c13c"),s=num("c13s"),n=x.length;if(!(n>=2&&s>0)){$("o_p13").innerHTML=bad("values and σ > 0 please.");return;}
+ const fl=[];x.forEach((v,i)=>{if(Math.abs(v-c)>3*s)fl.push(`Point ${i+1}: beyond an action limit (±3σ).`);});
+ for(let i=2;i<n;i++)for(const q of[1,-1]){if([x[i-2],x[i-1],x[i]].filter(v=>q*(v-c)>2*s).length>=2)fl.push(`Points ${i-1}–${i+1}: two of three beyond the same warning limit.`);}
+ let run=0,sgn=0;x.forEach((v,i)=>{const sn=Math.sign(v-c);if(sn&&sn===sgn)run++;else{run=sn?1:0;sgn=sn;}if(run===7)fl.push(`Points ${i-5}–${i+1}: seven in a row on one side.`);});
+ let up=0,dn=0;for(let i=1;i<n;i++){up=x[i]>x[i-1]?up+1:0;dn=x[i]<x[i-1]?dn+1:0;if(up===6||dn===6)fl.push(`Points ${i-5}–${i+1}: seven in a row steadily ${up===6?"rising":"falling"}.`);}
+ const big=x.map((v,i)=>Math.abs(v-c)>3*s?i:-1).filter(i=>i>=0);
+ $("o_p13").innerHTML=step(`<b>Limits.</b> Warning ${f(c-2*s,2)} / ${f(c+2*s,2)}; action ${f(c-3*s,2)} / ${f(c+3*s,2)}.`)+
+  xyPlot({pts:x.map((v,i)=>[i+1,v]),lines:[{pts:x.map((v,i)=>[i+1,v]),style:"stroke-width:1"}],hlines:[{y:c+3*s,label:"+3σ"},{y:c-3*s,label:"−3σ"},{y:c+2*s,label:"+2σ"},{y:c-2*s,label:"−2σ"}],big,xl:"Check number",yl:"Value"})+
+  (fl.length?step("<b>Signals:</b><br>"+[...new Set(fl)].join("<br>")):"")+verdict(fl.length>0,"Out of control: investigate","In control");}
+
+
+// ---------- wiring ----------
+const renderers={p1:r_p1,p2:r_p2,p3:r_p3,p4:r_p4,p5:r_p5,p6:r_p6,p7:r_p7,p8:r_p8,p9:r_p9,p10:r_p10,p11:r_p11,p12:r_p12,p13:r_p13};
+const defaults={};
+document.querySelectorAll(".panel").forEach(p=>{defaults[p.id]={};p.querySelectorAll("input,select,textarea").forEach(el=>defaults[p.id][el.id]=el.value);
+  p.addEventListener("input",()=>renderers[p.id]());p.addEventListener("change",()=>renderers[p.id]());});
+document.querySelectorAll(".reset").forEach(b=>b.addEventListener("click",()=>{const id=b.dataset.reset;Object.entries(defaults[id]).forEach(([k,v])=>$(k).value=v);renderers[id]();}));
+const tabs=[...document.querySelectorAll('nav.rail button')];
+function show(id){tabs.forEach(t=>t.setAttribute("aria-selected",t.dataset.p===id?"true":"false"));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("active",p.id===id));renderers[id]();
+  try{localStorage.setItem("p3stat-tab",id)}catch(e){}}
+tabs.forEach(t=>t.addEventListener("click",()=>show(t.dataset.p)));
+document.querySelector("nav.rail").addEventListener("keydown",e=>{const i=tabs.findIndex(t=>t.getAttribute("aria-selected")==="true");
+  if(e.key==="ArrowDown"||e.key==="ArrowRight"){e.preventDefault();const n=tabs[(i+1)%tabs.length];show(n.dataset.p);n.focus();}
+  if(e.key==="ArrowUp"||e.key==="ArrowLeft"){e.preventDefault();const n=tabs[(i-1+tabs.length)%tabs.length];show(n.dataset.p);n.focus();}});
+const root=document.documentElement;
+try{const th=localStorage.getItem("p3stat-theme");if(th)root.setAttribute("data-theme",th);}catch(e){}
+$("themeBtn").addEventListener("click",()=>{const dark=root.getAttribute("data-theme")?root.getAttribute("data-theme")==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
+  const next=dark?"light":"dark";root.setAttribute("data-theme",next);try{localStorage.setItem("p3stat-theme",next)}catch(e){}});
+Object.entries(renderers).forEach(([k,fn])=>{try{fn();}catch(err){$("o_"+k).innerHTML=bad("calculation error: "+err.message);}});
+let start="p1";
+const h0=location.hash.slice(1);if(h0&&renderers[h0])start=h0;else{try{const s=localStorage.getItem("p3stat-tab");if(s&&renderers[s])start=s;}catch(e){}}
+show(start);
+
+</script>
+</body>
+</html>
